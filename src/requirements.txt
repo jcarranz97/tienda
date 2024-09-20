@@ -5,3 +5,6 @@ uvicorn
 flower
 redis
 fastapi
+python-dotenv
+sqlalchemy
+mysql-connector-python

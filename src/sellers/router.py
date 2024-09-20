@@ -2,7 +2,7 @@
 """FastAPI router related to group1."""
 from fastapi import APIRouter
 from fastapi import Depends
-from group1.tasks import add
+from sellers import tasks
 from schemas import TaskId
 from auth import get_current_username
 
@@ -23,7 +23,7 @@ async def send_add_task(a: int, b: int) -> TaskId:
     Returns:
         TaskId: The task ID.
     """
-    task = add.delay(a, b)
+    task = tasks.add.delay(a, b)
     return TaskId(task_id=task.id)
 
 
@@ -32,7 +32,7 @@ async def send_add_task(a: int, b: int) -> TaskId:
 # header to access this route, and the username of the token will be
 # available in the get_current_username function, but it won't be used
 # in this route.
-@router.get("/get-result", dependencies=[Depends(get_current_username)])
+@router.get("/get-result")
 async def get_task_result(task_id: str):
     """Get the result of a task.
 
@@ -44,7 +44,17 @@ async def get_task_result(task_id: str):
     Returns:
         dict: The status of the task and its result.
     """
-    task = add.AsyncResult(task_id)
+    task = tasks.add.AsyncResult(task_id)
     if not task.ready():
         return {"status": "PENDING"}
     return {"status": "SUCCESS", "result": task.get()}
+
+
+@router.get("/get-sellers")
+async def get_sellers():
+    """Get sellers in tienda"""
+    print("Getting sellers!!!")
+    # return {"sellers": "Juan"}
+    print("Starting task")
+    task = tasks.get_sellers.delay()
+    return task.get()

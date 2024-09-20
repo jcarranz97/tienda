@@ -7,13 +7,13 @@ from fastapi import WebSocket
 from fastapi import Depends
 from celery.result import AsyncResult
 from celery_worker import celery_app
-from group1.router import router as group1_router
+from sellers.router import router as sellers_router
 from group2.router import router as group2_router
 from auth import get_current_username
 
 
 app = FastAPI()
-app.include_router(group1_router, prefix="/group1")
+app.include_router(sellers_router, prefix="/sellers", tags=["sellers"])
 app.include_router(group2_router, prefix="/group2")
 
 

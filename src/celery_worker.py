@@ -7,7 +7,12 @@ celery_app = Celery(
     broker="redis://redis/0",
     backend="redis://redis/0",
     include=[
-        "group1.tasks",
+        "sellers.tasks",
         "group2.tasks",
     ],
 )
+
+celery_app.conf.task_routes = {
+    "sellers.tasks.*": {"queue": "base"},
+    "group2.tasks.*": {"queue": "base"},
+}

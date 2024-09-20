@@ -21,16 +21,21 @@ services:
       - redis
   celery_worker:
     build: .
-    command: celery -A celery_worker worker --pool=solo --loglevel=info --concurrency 1
+    command: celery -A celery_worker worker -Q base --loglevel=info --concurrency 5
     deploy:
       mode: replicated
-      replicas: 4
+      replicas: 1
     volumes:
       - .:/app
-      - lmdb_files:/root/lmdb_files/
     depends_on:
       - redis
       - app
+    environment:
+      - DB_HOST=$DB_HOST
+      - DB_PORT=$DB_PORT
+      - DB_USER=$DB_USER
+      - DB_PASS=$DB_PASS
+      - DB_NAME=$DB_NAME
   flower:
     container_name: flower
     build: .
