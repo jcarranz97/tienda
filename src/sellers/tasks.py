@@ -84,8 +84,8 @@ def add_seller(name: str):
 
 
 @shared_task
-def modify_seller(seller_id: int, seller_name: str):
-    """Modify seller by seller_id"""
+def update_seller(seller_id: int, seller_name: str):
+    """Update seller by seller_id"""
     with Session() as session:
         db_seller = session.scalar(
             select(models.Seller).where(models.Seller.id_seller == seller_id)

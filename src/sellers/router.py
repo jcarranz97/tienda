@@ -73,10 +73,10 @@ async def add_seller(name: str) -> schemas.AddSellerResponse:
     return task.get()
 
 
-@router.put("/modify-seller/{seller_id}")
-async def modify_seller(seller_id: int, name: str):
-    """Modify a seller"""
-    task = tasks.modify_seller.delay(seller_id, name)
+@router.put("/update-seller/{seller_id}")
+async def update_seller(seller_id: int, name: str):
+    """Update a seller"""
+    task = tasks.update_seller.delay(seller_id, name)
     return task.get()
 
 
