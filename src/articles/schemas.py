@@ -50,7 +50,8 @@ class ArticleDetailResponse(BaseModel):
     description: str
     shipping_label: str
     purchase_price: float | None
-    shipping_group_name: str | None
+    shipping_group: str | None
+    status: str
     dollar_price: float | None
     tax: float | None
     shipping_cost: float | None

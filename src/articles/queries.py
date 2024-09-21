@@ -32,6 +32,7 @@ def get_article_query(session, article_id=None):
             models.Article.shipping_label,
             models.Article.purchase_price,
             ShippingGroup.shipping_group_name,
+            models.ArticleStatus.status_name,
             ShippingGroup.dollar_price,
             ShippingGroup.tax,
             ShippingGroup.shipping_cost,
@@ -56,6 +57,7 @@ def get_article_query(session, article_id=None):
         .join(ShippingGroup, models.Article.id_shipping_group == ShippingGroup.id_shipping_group)
         .join(models.Location, models.Article.id_location == models.Location.id_location)
         .join(ArticleCount, models.Article.id_shipping_group == ArticleCount.c.id_shipping_group)
+        .join(models.ArticleStatus, models.Article.id_article_status == models.ArticleStatus.id_article_status)
     )
 
     # If article_id is provided, apply the filter
