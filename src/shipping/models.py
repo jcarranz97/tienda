@@ -57,3 +57,4 @@ class ShippingGroup(Base):
     # Relationships
     shipper = relationship("Shipper", back_populates="shipping_groups")
     status = relationship("ShippingStatus", back_populates="shipping_groups")
+    articles = relationship("Article", back_populates="shipping_group")
