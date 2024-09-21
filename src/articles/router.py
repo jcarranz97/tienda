@@ -104,7 +104,7 @@ async def add_article(
     purchase_price: float,
     id_availability: int,
     id_location: int,
-    id_shipping_group: int | None = None,
+    shipping_group_name: str | None = None,
 ) -> int:
     """Add an article"""
     task = tasks.add_article.delay(
@@ -113,7 +113,7 @@ async def add_article(
         purchase_price,
         id_availability,
         id_location,
-        id_shipping_group,
+        shipping_group_name=shipping_group_name,
     )
     return task.get()
 
