@@ -6,6 +6,7 @@ from . import tasks
 
 router = APIRouter()
 
+
 @router.get("/get-articles-availabilities")
 async def get_articles_availabilities() -> schemas.GetArticlesAvailabilitiesResponse:
     """Get all articles availabilities"""
@@ -139,7 +140,7 @@ async def modify_article(
 
 
 @router.delete("/delete-article/{article_id}")
-def delete_article(article_id: int) -> int:
+async def delete_article(article_id: int) -> int:
     """Delete an article"""
     task = tasks.delete_article.delay(article_id)
     return task.get()
