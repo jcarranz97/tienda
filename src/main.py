@@ -9,12 +9,14 @@ from fastapi.responses import JSONResponse
 from celery.result import AsyncResult
 from celery_worker import celery_app
 from sellers.router import router as sellers_router
+from shippers.router import router as shippers_router
 from group2.router import router as group2_router
 from auth import get_current_username
 
 
 app = FastAPI()
 app.include_router(sellers_router, prefix="/sellers", tags=["sellers"])
+app.include_router(shippers_router, prefix="/shippers", tags=["shippers"])
 app.include_router(group2_router, prefix="/group2")
 
 
