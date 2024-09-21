@@ -35,6 +35,18 @@ async def value_error_exception_handler(request, exc):
     )
 
 
+@app.exception_handler(Exception)
+async def generic_exception_handler(request, exc):
+    """Generic exception handler"""
+    return JSONResponse(
+        status_code=400,
+        content={
+            "message": str(exc),
+            "next_steps": "Please check logs in server for more details",
+        }
+    )
+
+
 @app.get("/")
 def read_root():
     """Hello World endpoint."""
