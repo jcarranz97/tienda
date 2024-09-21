@@ -7,38 +7,38 @@ from . import tasks
 router = APIRouter()
 
 
-@router.get("/get-articles-availabilities")
-async def get_articles_availabilities() -> schemas.GetArticlesAvailabilitiesResponse:
-    """Get all articles availabilities"""
-    task = tasks.get_articles_availabilities.delay()
+@router.get("/get-articles-statuses")
+async def get_articles_statuses() -> schemas.GetArticlesStatusesResponse:
+    """Get all articles statuses"""
+    task = tasks.get_article_statuses.delay()
     return task.get()
 
 
-@router.get("/get-article-availability/{availability_id}")
-async def get_article_availability(availability_id: int) -> schemas.ArticleAvailabilityBase:
-    """Get an article availability"""
-    task = tasks.get_article_availability.delay(availability_id)
+@router.get("/get-article-status/{id_article_status}")
+async def get_article_status(id_article_status: int) -> schemas.ArticleStatusBase:
+    """Get an article status"""
+    task = tasks.get_article_status.delay(id_article_status)
     return task.get()
 
 
-@router.get("/add-article-availability")
-async def add_article_availability(name: str) -> int:
-    """Add an article availability"""
-    task = tasks.add_article_availability.delay(name)
+@router.get("/add-article-status")
+async def add_article_status(name: str) -> int:
+    """Add an article status"""
+    task = tasks.add_article_status.delay(name)
     return task.get()
 
 
-@router.put("/modify-article-availability/{availability_id}")
-async def modify_article_availability(availability_id: int, name: str) -> int:
-    """Modify an article availability"""
-    task = tasks.modify_article_availability.delay(availability_id, name)
+@router.put("/modify-article-status/{id_article_status}")
+async def modify_article_status(id_article_status: int, name: str) -> int:
+    """Modify an article status"""
+    task = tasks.modify_article_status.delay(id_article_status, name)
     return task.get()
 
 
-@router.delete("/delete-article-availability/{availability_id}")
-async def delete_article_availability(availability_id: int) -> int:
-    """Delete an article availability"""
-    task = tasks.delete_article_availability.delay(availability_id)
+@router.delete("/delete-article-status/{id_article_status}")
+async def delete_article_status(id_article_status: int) -> int:
+    """Delete an article status"""
+    task = tasks.delete_article_status.delay(id_article_status)
     return task.get()
 
 

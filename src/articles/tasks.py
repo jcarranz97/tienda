@@ -10,103 +10,94 @@ from . import queries
 
 
 @shared_task
-def get_articles_availabilities():
-    """Get articles availabilities from database"""
+def get_article_statuses():
+    """Get article statuses from database"""
     with Session() as session:
-        db_availabilities = session.scalars(
-            select(models.ArticleAvailability)
-        ).all()
-        availabilities = [
-            schemas.ArticleAvailabilityBase(
-                id=db_availability.id_availability,
-                name=db_availability.availability_name,
-                created_at=db_availability.created_at,
-                updated_at=db_availability.updated_at,
+        db_statuses = session.scalars(select(models.ArticleStatus)).all()
+        statuses = [
+            schemas.ArticleStatusBase(
+                id=db_status.id_article_status,
+                name=db_status.status_name,
+                created_at=db_status.created_at,
+                updated_at=db_status.updated_at,
             ).dict()
-            for db_availability in db_availabilities
+            for db_status in db_statuses
         ]
-        return schemas.GetArticlesAvailabilitiesResponse(
-            availabilities=availabilities
+        return schemas.GetArticlesStatusesResponse(statuses=statuses).dict()
+
+
+@shared_task
+def get_article_status(id_article_status: int):
+    """Get article status from database"""
+    with Session() as session:
+        db_status = session.scalar(
+            select(models.ArticleStatus)
+            .where(
+                models.ArticleStatus.id_article_status == id_article_status
+            )
+        )
+        if not db_status:
+            raise ValueError(
+                f"Article status with ID {id_article_status} not found.")
+        return schemas.ArticleStatusBase(
+            id=db_status.id_article_status,
+            name=db_status.status_name,
+            created_at=db_status.created_at,
+            updated_at=db_status.updated_at,
         ).dict()
 
 
 @shared_task
-def get_article_availability(availability_id: int):
-    """Get article availability from database"""
+def add_article_status(name: str):
+    """Add article status to database"""
     with Session() as session:
-        db_availability = session.scalar(
-            select(models.ArticleAvailability)
-            .where(
-                models.ArticleAvailability.id_availability == availability_id
-            )
+        # Before adding a new status, we should confirm that there is no status
+        # with the same name in the database. This is a business rule that
+        # should be enforced.
+        db_status = session.scalar(
+            select(models.ArticleStatus)
+            .where(models.ArticleStatus.status_name == name)
         )
-        if not db_availability:
+        if db_status:
             raise ValueError(
-                f"Article availability with ID {availability_id} not found.")
-        return schemas.ArticleAvailabilityBase(
-            id=db_availability.id_availability,
-            name=db_availability.availability_name,
-            created_at=db_availability.created_at,
-            updated_at=db_availability.updated_at,
-        ).dict()
+                f"Article status '{name}' already exists in the database.")
+
+        new_status = models.ArticleStatus(status_name=name)
+        session.add(new_status)
+        session.commit()
+        return new_status.id_article_status
 
 
 @shared_task
-def add_article_availability(name: str):
-    """Add article availability to database"""
+def modify_article_status(id_article_status: int, name: str):
+    """Modify article status by id_article_status"""
     with Session() as session:
-        # Before adding a new article availability, we should confirm that
-        # there is not article availability with the same name in the database.
-        # This is a business rule that should be enforced.
-        db_availability = session.scalar(
-            select(models.ArticleAvailability)
-            .where(models.ArticleAvailability.availability_name == name)
+        db_status = session.scalar(
+            select(models.ArticleStatus)
+            .where(models.ArticleStatus.id_article_status == id_article_status)
         )
-        if db_availability:
+        if not db_status:
             raise ValueError(
-                f"Article availability '{name}' already exists in" +
-                "the database.")
-
-        new_availability = models.ArticleAvailability(availability_name=name)
-        session.add(new_availability)
+                f"Article status with ID {id_article_status} not found.")
+        db_status.status_name = name
         session.commit()
-        return new_availability.id_availability
+        return id_article_status
 
 
 @shared_task
-def modify_article_availability(availability_id: int, name: str):
-    """Modify article availability by availability_id"""
+def delete_article_status(id_article_status: int):
+    """Delete article status by id_article_status"""
     with Session() as session:
-        db_availability = session.scalar(
-            select(models.ArticleAvailability)
-            .where(
-                models.ArticleAvailability.id_availability == availability_id
-            )
+        db_status = session.scalar(
+            select(models.ArticleStatus)
+            .where(models.ArticleStatus.id_article_status == id_article_status)
         )
-        if not db_availability:
+        if not db_status:
             raise ValueError(
-                f"Article availability with ID {availability_id} not found.")
-        db_availability.availability_name = name
+                f"Article status with ID {id_article_status} not found.")
+        session.delete(db_status)
         session.commit()
-        return availability_id
-
-
-@shared_task
-def delete_article_availability(availability_id: int):
-    """Delete article availability by availability_id"""
-    with Session() as session:
-        db_availability = session.scalar(
-            select(models.ArticleAvailability)
-            .where(
-                models.ArticleAvailability.id_availability == availability_id
-            )
-        )
-        if not db_availability:
-            raise ValueError(
-                f"Article availability with ID {availability_id} not found.")
-        session.delete(db_availability)
-        session.commit()
-        return availability_id
+        return id_article_status
 
 
 @shared_task
@@ -253,7 +244,7 @@ def add_article(
     description: str,
     shipping_label: str,
     purchase_price: float,
-    availability_id: int,
+    id_article_status: int,
     location_id: int,
     shipping_group_id: int = None,
 ):
@@ -263,7 +254,7 @@ def add_article(
             description=description,
             shipping_label=shipping_label,
             purchase_price=purchase_price,
-            id_availability=availability_id,
+            id_article_status=id_article_status,
             id_location=location_id,
             id_shipping_group=shipping_group_id,
         )
@@ -279,7 +270,7 @@ def modify_article(
     shipping_label: str | None = None,
     purchase_price: float | None = None,
     sale_price: float | None = None,
-    id_availability: int | None = None,
+    id_article_status: int | None = None,
     id_location: int | None = None,
     id_shipping_group: int | None = None,
 ):
@@ -307,8 +298,8 @@ def modify_article(
         if sale_price is not None:
             db_article.sale_price = sale_price
             item_modifications += 1
-        if id_availability is not None:
-            db_article.id_availability = id_availability
+        if id_article_status is not None:
+            db_article.id_article_status = id_article_status
             item_modifications += 1
         if id_location is not None:
             db_article.id_location = id_location
