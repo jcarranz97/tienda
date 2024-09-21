@@ -401,3 +401,34 @@ def delete_article(article_id: int):
         session.delete(db_article)
         session.commit()
         return article_id
+
+
+@shared_task
+def add_sale_price(
+        shipping_group_name: str,
+        shipping_label: str,
+        sale_price: float,
+) -> int:
+    """Add sale price to database"""
+    with Session() as session:
+        db_shipping_group = session.scalar(
+            select(ShippingGroup)
+            .where(ShippingGroup.shipping_group_name == shipping_group_name)
+        )
+        if not db_shipping_group:
+            raise ValueError(
+                f"Shipping group '{shipping_group_name}' not found.")
+        db_article = session.scalar(
+            select(models.Article)
+            .where(
+                models.Article.shipping_label == shipping_label,
+                models.Article.id_shipping_group == db_shipping_group.id_shipping_group  # noqa: E501, pylint: disable=line-too-long
+            )
+        )
+        if not db_article:
+            raise ValueError(
+                f"Article with shipping label '{shipping_label}' not found " +
+                "in the shipping group '{shipping_group_name}'.")
+        db_article.sale_price = sale_price
+        session.commit()
+        return db_article.id_article

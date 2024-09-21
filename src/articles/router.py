@@ -144,3 +144,18 @@ async def delete_article(article_id: int) -> int:
     """Delete an article"""
     task = tasks.delete_article.delay(article_id)
     return task.get()
+
+
+@router.post("/add-sale-price")
+async def add_sale_price(
+        shipping_group_name: str,
+        shipping_label: str,
+        sale_price: float,
+) -> int:
+    """Add a sale price"""
+    task = tasks.add_sale_price.delay(
+        shipping_group_name=shipping_group_name,
+        shipping_label=shipping_label,
+        sale_price=sale_price,
+    )
+    return task.get()
