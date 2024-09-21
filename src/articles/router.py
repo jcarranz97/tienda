@@ -122,16 +122,18 @@ async def modify_article(
     id_availability: int | None = None,
     id_location: int | None = None,
     id_shipping_group: int | None = None,
+    sale_price: float | None = None,
 ) -> schemas.ModifyArticleResponse:
     """Modify an article"""
     task = tasks.modify_article.delay(
-        article_id,
-        description,
-        shipping_label,
-        purchase_price,
-        id_availability,
-        id_location,
-        id_shipping_group,
+        article_id=article_id,
+        description=description,
+        shipping_label=shipping_label,
+        purchase_price=purchase_price,
+        sale_price=sale_price,
+        id_availability=id_availability,
+        id_location=id_location,
+        id_shipping_group=id_shipping_group,
     )
     return task.get()
 

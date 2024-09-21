@@ -343,9 +343,9 @@ def modify_article(
     shipping_label: str | None = None,
     purchase_price: float | None = None,
     sale_price: float | None = None,
-    availability_id: int | None = None,
-    location_id: int | None = None,
-    shipping_group_id: int | None = None,
+    id_availability: int | None = None,
+    id_location: int | None = None,
+    id_shipping_group: int | None = None,
 ):
     """Modify article by article_id"""
     with Session() as session:
@@ -371,14 +371,14 @@ def modify_article(
         if sale_price is not None:
             db_article.sale_price = sale_price
             item_modifications += 1
-        if availability_id is not None:
-            db_article.id_availability = availability_id
+        if id_availability is not None:
+            db_article.id_availability = id_availability
             item_modifications += 1
-        if location_id is not None:
-            db_article.id_location = location_id
+        if id_location is not None:
+            db_article.id_location = id_location
             item_modifications += 1
-        if shipping_group_id is not None:
-            db_article.id_shipping_group = shipping_group_id
+        if id_shipping_group is not None:
+            db_article.id_shipping_group = id_shipping_group
             item_modifications += 1
         if item_modifications == 0:
             raise ValueError("No fields to modify.")
