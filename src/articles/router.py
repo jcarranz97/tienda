@@ -80,9 +80,13 @@ async def delete_location(location_id: int) -> int:
 
 # Article routes
 @router.get("/get-articles")
-async def get_articles() -> schemas.GetArticlesDetailResponse:
+async def get_articles(
+        shipping_group_name: str | None = None,
+        ) -> schemas.GetArticlesDetailResponse:
     """Get all articles"""
-    task = tasks.get_articles.delay()
+    task = tasks.get_articles.delay(
+        shipping_group_name=shipping_group_name,
+    )
     return task.get()
 
 

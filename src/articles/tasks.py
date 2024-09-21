@@ -3,7 +3,7 @@
 from celery import shared_task
 from sqlalchemy import select
 from database import Session
-from shipping.models import ShippingGroup
+from shipping.queries import get_shipping_group_by_name
 from . import models
 from . import schemas
 from . import queries
@@ -187,11 +187,21 @@ def delete_location(location_id: int):
 
 
 @shared_task
-def get_articles():
+def get_articles(shipping_group_name: str | None = None):
     """Get articles from database"""
     with Session() as session:
+        # Before fetching the articles, we need to confirm that
+        # shipping_group_name is valid (If entered),
+        if shipping_group_name:
+            db_shipping_group = get_shipping_group_by_name(
+                session=session,
+                shipping_group_name=shipping_group_name,
+            )
         # Main query to fetch the required fields, including the "profit"
-        query = queries.get_article_query(session)
+        query = queries.get_article_query(
+            session=session,
+            id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_name else None,  # noqa: E501, pylint: disable=line-too
+        )
 
         articles = [
             schemas.ArticleDetailResponse(
@@ -340,13 +350,13 @@ def add_sale_price(
 ) -> int:
     """Add sale price to database"""
     with Session() as session:
-        db_shipping_group = session.scalar(
-            select(ShippingGroup)
-            .where(ShippingGroup.shipping_group_name == shipping_group_name)
+        # Before adding a new sale price, we should confirm that the
+        # shipping_group_name is valid.
+        db_shipping_group = get_shipping_group_by_name(
+            session=session,
+            shipping_group_name=shipping_group_name,
         )
-        if not db_shipping_group:
-            raise ValueError(
-                f"Shipping group '{shipping_group_name}' not found.")
+
         db_article = session.scalar(
             select(models.Article)
             .where(
