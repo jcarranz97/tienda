@@ -8,7 +8,12 @@ from . import models
 from . import formulas
 
 
-def get_article_query(session, article_id=None, id_shipping_group=None):
+def get_article_query(
+        session,
+        article_id=None,
+        id_shipping_group=None,
+        shipping_label=None,
+        ):
     """Get article query"""
     # Create an alias for the subquery counting articles per shipping group
     article_count_subquery = (
@@ -67,6 +72,10 @@ def get_article_query(session, article_id=None, id_shipping_group=None):
     # If shipping_group_name is provided, apply the filter
     if id_shipping_group:
         query = query.filter(models.Article.id_shipping_group == id_shipping_group)
+
+    # If shipping_label is provided, apply the filter
+    if shipping_label:
+        query = query.filter(models.Article.shipping_label == shipping_label)
 
     return query
 

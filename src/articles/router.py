@@ -97,6 +97,19 @@ async def get_article(article_id: int) -> schemas.ArticleDetailResponse:
     return task.get()
 
 
+@router.get("/get-article-by-shipping-group-and-label")
+async def get_article_by_shipping_group_and_label(
+    shipping_group_name: str,
+    shipping_label: str,
+) -> schemas.ArticleDetailResponse:
+    """Get an article by shipping group and label"""
+    task = tasks.get_article_by_shipping_group_and_label.delay(
+        shipping_group_name=shipping_group_name,
+        shipping_label=shipping_label,
+    )
+    return task.get()
+
+
 @router.get("/add-article")
 async def add_article(
     description: str,

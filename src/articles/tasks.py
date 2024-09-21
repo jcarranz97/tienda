@@ -255,6 +255,44 @@ def get_article(article_id: int):
 
 
 @shared_task
+def get_article_by_shipping_group_and_label(
+    shipping_group_name: str,
+    shipping_label: str,
+):
+    """Get article by shipping group and label"""
+    with Session() as session:
+        db_shipping_group = get_shipping_group_by_name(
+            session=session,
+            shipping_group_name=shipping_group_name,
+        )
+        query = queries.get_article_query(
+            session=session,
+            id_shipping_group=db_shipping_group.id_shipping_group,
+            shipping_label=shipping_label,
+        )
+        db_article = query.first()
+        if not db_article:
+            raise ValueError(
+                f"Article with shipping label '{shipping_label}' not found " +
+                f"in the shipping group '{shipping_group_name}'.")
+        return schemas.ArticleDetailResponse(
+            id_article=db_article.id_article,
+            description=db_article.description,
+            shipping_label=db_article.shipping_label,
+            purchase_price=db_article.purchase_price,
+            shipping_group=db_article.shipping_group_name,
+            status=db_article.status_name,
+            dollar_price=db_article.dollar_price,
+            tax=db_article.tax,
+            shipping_cost=db_article.shipping_cost,
+            location_name=db_article.location_name,
+            purchase_price_mxn=db_article.purchase_price_mxn,
+            profit=db_article.profit,
+            sale_price=db_article.sale_price,
+        ).dict()
+
+
+@shared_task
 def add_article(
     description: str,
     shipping_label: str,
