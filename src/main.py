@@ -5,6 +5,7 @@ from typing import Annotated
 from fastapi import FastAPI
 from fastapi import WebSocket
 from fastapi import Depends
+from fastapi.responses import JSONResponse
 from celery.result import AsyncResult
 from celery_worker import celery_app
 from sellers.router import router as sellers_router
@@ -15,6 +16,17 @@ from auth import get_current_username
 app = FastAPI()
 app.include_router(sellers_router, prefix="/sellers", tags=["sellers"])
 app.include_router(group2_router, prefix="/group2")
+
+
+# Include exception handlers
+# pylint: disable=unused-argument
+@app.exception_handler(ValueError)
+async def value_error_exception_handler(request, exc):
+    """Exception handler for ValueError."""
+    return JSONResponse(
+        status_code=400,
+        content={"message": str(exc)},
+    )
 
 
 @app.get("/")
