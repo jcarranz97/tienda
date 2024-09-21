@@ -36,3 +36,9 @@ class ShippingGroupBase(BaseModel):
 class GetShippingGroupsResponse(BaseModel):
     """Get shipping groups response schema"""
     groups: list[ShippingGroupBase]
+
+
+class UpdateShippingGroupResponse(BaseModel):
+    """Update shipping group response schema"""
+    id: int
+    num_changes: int

@@ -198,3 +198,82 @@ def add_shipping_group(
         session.add(new_group)
         session.commit()
         return new_group.id_shipping_group
+
+
+@shared_task
+def update_shipping_group(
+        id_shipping_group: int,
+        name: str | None = None,
+        id_shipper: int | None = None,
+        id_status: int | None = None,
+        shipping_cost: float | None = None,
+        dollar_price: float | None = None,
+        tax: float | None = None,
+        notes: str | None = None,
+        ) -> schemas.UpdateShippingGroupResponse:
+    """Update shipping group by id_shipping_group.
+
+    This task updates the shipping group with the given id_shipping_group. All
+    fields are optional, so only the fields that are not None will be updated.
+
+    Returns:
+        UpdateShippingGroupResponse: The response object with the ID of the
+            updated shipping group and the number of changes made.
+    """
+    with Session() as session:
+        db_group = session.scalar(
+            select(models.ShippingGroup)
+            .where(models.ShippingGroup.id_shipping_group == id_shipping_group)
+        )
+        if not db_group:
+            raise ValueError(
+                f"Shipping group with ID {id_shipping_group} not found.")
+
+        num_changes = 0
+        # Update the fields that are not None
+        if name is not None:
+            db_group.shipping_group_name = name
+            num_changes += 1
+        if id_shipper is not None:
+            db_group.id_shipper = id_shipper
+            num_changes += 1
+        if id_status is not None:
+            db_group.id_status = id_status
+            num_changes += 1
+        if shipping_cost is not None:
+            db_group.shipping_cost = shipping_cost
+            num_changes += 1
+        if dollar_price is not None:
+            db_group.dollar_price = dollar_price
+            num_changes += 1
+        if tax is not None:
+            db_group.tax = tax
+            num_changes += 1
+        if notes is not None:
+            db_group.notes = notes
+            num_changes += 1
+
+        if not num_changes:
+            raise ValueError("No changes to update.")
+
+        session.commit()
+        return schemas.UpdateShippingGroupResponse(
+            id=id_shipping_group,
+            num_changes=num_changes,
+        ).dict()
+
+
+@shared_task
+def delete_shipping_group(id_shipping_group: int):
+    """Delete shipping group by id_shipping_group"""
+    with Session() as session:
+        db_group = session.scalar(
+            select(models.ShippingGroup)
+            .where(models.ShippingGroup.id_shipping_group == id_shipping_group)
+        )
+        if not db_group:
+            raise ValueError(
+                f"Shipping group with ID {id_shipping_group} not found.")
+        session.delete(db_group)
+        session.commit()
+        return id_shipping_group

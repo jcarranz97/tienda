@@ -76,3 +76,35 @@ async def add_shipping_group(
         name, id_shipper, id_status, shipping_cost, dollar_price, tax, notes
     )
     return task.get()
+
+
+@router.put("/update-shipping-group/{group_id}")
+async def update_shipping_group(
+        id_shipping_group: int,
+        name: str | None = None,
+        id_shipper: int | None = None,
+        id_status: int | None = None,
+        shipping_cost: float | None = None,
+        dollar_price: float | None = None,
+        tax: float | None = None,
+        notes: str | None = None,
+        ) -> schemas.UpdateShippingGroupResponse:
+    """Modify a shipping group"""
+    task = tasks.update_shipping_group.delay(
+        id_shipping_group=id_shipping_group,
+        name=name,
+        id_shipper=id_shipper,
+        id_status=id_status,
+        shipping_cost=shipping_cost,
+        dollar_price=dollar_price,
+        tax=tax,
+        notes=notes,
+    )
+    return task.get()
+
+
+@router.delete("/delete-shipping-group/{group_id}")
+async def delete_shipping_group(group_id: int) -> int:
+    """Delete a shipping group"""
+    task = tasks.delete_shipping_group.delay(group_id)
+    return task.get()
