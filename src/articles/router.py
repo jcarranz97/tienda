@@ -102,8 +102,8 @@ async def add_article(
     description: str,
     shipping_label: str,
     purchase_price: float,
-    id_availability: int,
-    id_location: int,
+    article_location: str,
+    article_status: str,
     shipping_group_name: str | None = None,
 ) -> int:
     """Add an article"""
@@ -111,8 +111,8 @@ async def add_article(
         description,
         shipping_label,
         purchase_price,
-        id_availability,
-        id_location,
+        article_location=article_location,
+        article_status=article_status,
         shipping_group_name=shipping_group_name,
     )
     return task.get()

@@ -256,8 +256,8 @@ def add_article(
     description: str,
     shipping_label: str,
     purchase_price: float,
-    id_article_status: int,
-    location_id: int,
+    article_location: str,
+    article_status: str,
     shipping_group_name: str | None = None,
 ):
     """Add article to database"""
@@ -267,12 +267,20 @@ def add_article(
                 session=session,
                 shipping_group_name=shipping_group_name,
             )
+        db_location = queries.get_article_location_by_name(
+            session=session,
+            location_name=article_location,
+        )
+        db_article_status = queries.get_article_status_by_name(
+            session=session,
+            status_name=article_status,
+        )
         new_article = models.Article(
             description=description,
             shipping_label=shipping_label,
             purchase_price=purchase_price,
-            id_article_status=id_article_status,
-            id_location=location_id,
+            id_article_status=db_article_status.id_article_status,
+            id_location=db_location.id_location,
             id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_name else None,  # noqa: E501, pylint: disable=line-too-long
         )
         session.add(new_article)

@@ -69,3 +69,27 @@ def get_article_query(session, article_id=None, id_shipping_group=None):
         query = query.filter(models.Article.id_shipping_group == id_shipping_group)
 
     return query
+
+
+def get_article_status_by_name(session, status_name):
+    """Get article status by name"""
+    db_status = session.scalar(
+        select(models.ArticleStatus)
+        .where(models.ArticleStatus.status_name == status_name)
+    )
+    if not db_status:
+        raise ValueError(
+            f"Status '{status_name}' not found.")
+    return db_status
+
+
+def get_article_location_by_name(session, location_name):
+    """Get article location by name"""
+    db_location = session.scalar(
+        select(models.Location)
+        .where(models.Location.location_name == location_name)
+    )
+    if not db_location:
+        raise ValueError(
+            f"Location '{location_name}' not found.")
+    return db_location
