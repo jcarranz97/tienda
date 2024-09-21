@@ -113,6 +113,7 @@ def get_shipping_groups():
                 id_status=db_group.id_status,
                 shipping_cost=db_group.shipping_cost,
                 dollar_price=db_group.dollar_price,
+                tax=db_group.tax,
                 created_at=db_group.created_at,
                 updated_at=db_group.updated_at,
                 notes=db_group.notes,
@@ -139,6 +140,7 @@ def get_shipping_group(group_id: int):
             id_status=db_group.id_status,
             shipping_cost=db_group.shipping_cost,
             dollar_price=db_group.dollar_price,
+            tax=db_group.tax,
             created_at=db_group.created_at,
             updated_at=db_group.updated_at,
             notes=db_group.notes,
@@ -153,6 +155,7 @@ def add_shipping_group(
         id_status: int,
         shipping_cost: float,
         dollar_price: float,
+        tax: float,
         notes: str | None,
 ):
     """Add shipping group to database"""
@@ -189,6 +192,7 @@ def add_shipping_group(
             id_status=id_status,
             shipping_cost=shipping_cost,
             dollar_price=dollar_price,
+            tax=tax,
             notes=notes,
         )
         session.add(new_group)

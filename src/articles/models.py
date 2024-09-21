@@ -46,6 +46,7 @@ class Article(Base):
     description = Column(String(255), nullable=False)
     shipping_label = Column(String(255), nullable=False)
     purchase_price = Column(Numeric(10, 2), nullable=False)
+    sale_price = Column(Numeric(10, 2), nullable=False)
     id_availability = Column(
         Integer,
         ForeignKey('article_availability.id_availability'),

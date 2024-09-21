@@ -27,6 +27,7 @@ class ShippingGroupBase(BaseModel):
     id_status: int
     shipping_cost: float
     dollar_price: float
+    tax: float
     created_at: datetime
     updated_at: datetime
     notes: str | None

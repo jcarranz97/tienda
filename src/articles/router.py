@@ -79,7 +79,7 @@ async def delete_location(location_id: int) -> int:
 
 # Article routes
 @router.get("/get-articles")
-async def get_articles() -> schemas.GetArticlesResponse:
+async def get_articles() -> schemas.GetArticlesDetailResponse:
     """Get all articles"""
     task = tasks.get_articles.delay()
     return task.get()
@@ -99,7 +99,7 @@ async def add_article(
     purchase_price: float,
     id_availability: int,
     id_location: int,
-    id_shipping_group: int,
+    id_shipping_group: int | None = None,
 ) -> int:
     """Add an article"""
     task = tasks.add_article.delay(

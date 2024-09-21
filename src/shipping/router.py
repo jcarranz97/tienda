@@ -68,10 +68,11 @@ async def add_shipping_group(
         id_status: int,
         shipping_cost: float,
         dollar_price: float,
+        tax: float,
         notes: str | None,
 ) -> int:
     """Add a shipping group"""
     task = tasks.add_shipping_group.delay(
-        name, id_shipper, id_status, shipping_cost, dollar_price, notes
+        name, id_shipper, id_status, shipping_cost, dollar_price, tax, notes
     )
     return task.get()

@@ -2,7 +2,10 @@
 """Celery tasks related to group2."""
 from celery import shared_task
 from sqlalchemy import select
+from sqlalchemy import func
+from sqlalchemy.orm import aliased
 from database import Session
+from shipping.models import ShippingGroup
 from . import models
 from . import schemas
 
@@ -193,26 +196,82 @@ def delete_location(location_id: int):
         return location_id
 
 
+# @shared_task
+# def get_articles():
+#     """Get articles from database"""
+#     with Session() as session:
+#         db_articles = session.scalars(select(models.Article)).all()
+#         articles = [
+#             schemas.ArticleBase(
+#                 id=db_article.id_article,
+#                 description=db_article.description,
+#                 shipping_label=db_article.shipping_label,
+#                 purchase_price=db_article.purchase_price,
+#                 sale_price=db_article.sale_price,
+#                 id_availability=db_article.id_availability,
+#                 id_location=db_article.id_location,
+#                 id_shipping_group=db_article.id_shipping_group,
+#                 created_at=db_article.created_at,
+#                 updated_at=db_article.updated_at,
+#             ).dict()
+#             for db_article in db_articles
+#         ]
+#         return schemas.GetArticlesResponse(articles=articles).dict()
 @shared_task
 def get_articles():
     """Get articles from database"""
     with Session() as session:
-        db_articles = session.scalars(select(models.Article)).all()
+        # Create an alias for the subquery counting articles per shipping group
+        article_count_subquery = (
+            select(
+                models.Article.id_shipping_group,
+                func.count(models.Article.id_article).label('article_count')
+            )
+            .group_by(models.Article.id_shipping_group)
+            .subquery()
+        )
+
+        # Create an alias to work with the subquery
+        ArticleCount = aliased(article_count_subquery)
+
+        # Main query using ORM models
+        query = (
+            session.query(
+                models.Article.id_article,
+                models.Article.description,
+                models.Article.shipping_label,
+                models.Article.purchase_price,
+                ShippingGroup.shipping_group_name,
+                ShippingGroup.dollar_price,
+                ShippingGroup.tax,
+                ShippingGroup.shipping_cost,
+                models.Location.location_name,
+                models.Article.sale_price,
+                (models.Article.purchase_price * ShippingGroup.dollar_price * (1 + (ShippingGroup.tax * 0.01)) +
+                 (ShippingGroup.shipping_cost / ArticleCount.c.article_count)).label('purchase_price_mx')
+            )
+            .join(ShippingGroup, models.Article.id_shipping_group == ShippingGroup.id_shipping_group)
+            .join(models.Location, models.Article.id_location == models.Location.id_location)
+            .join(ArticleCount, models.Article.id_shipping_group == ArticleCount.c.id_shipping_group)
+        )
+
         articles = [
-            schemas.ArticleBase(
-                id=db_article.id_article,
+            schemas.ArticleDetailResponse(
+                id_article=db_article.id_article,
                 description=db_article.description,
                 shipping_label=db_article.shipping_label,
                 purchase_price=db_article.purchase_price,
-                id_availability=db_article.id_availability,
-                id_location=db_article.id_location,
-                id_shipping_group=db_article.id_shipping_group,
-                created_at=db_article.created_at,
-                updated_at=db_article.updated_at,
+                shipping_group_name=db_article.shipping_group_name,
+                dollar_price=db_article.dollar_price,
+                tax=db_article.tax,
+                shipping_cost=db_article.shipping_cost,
+                location_name=db_article.location_name,
+                purchase_price_mxn=db_article.purchase_price_mx,
+                sale_price=db_article.sale_price,
             ).dict()
-            for db_article in db_articles
+            for db_article in query.all()
         ]
-        return schemas.GetArticlesResponse(articles=articles).dict()
+        return schemas.GetArticlesDetailResponse(articles=articles).dict()
 
 
 @shared_task
@@ -230,6 +289,7 @@ def get_article(article_id: int):
             description=db_article.description,
             shipping_label=db_article.shipping_label,
             purchase_price=db_article.purchase_price,
+            sale_price=db_article.sale_price,
             id_availability=db_article.id_availability,
             id_location=db_article.id_location,
             id_shipping_group=db_article.id_shipping_group,
@@ -245,7 +305,7 @@ def add_article(
     purchase_price: float,
     availability_id: int,
     location_id: int,
-    shipping_group_id: int,
+    shipping_group_id: int = None,
 ):
     """Add article to database"""
     with Session() as session:
@@ -268,6 +328,7 @@ def modify_article(
     description: str | None = None,
     shipping_label: str | None = None,
     purchase_price: float | None = None,
+    sale_price: float | None = None,
     availability_id: int | None = None,
     location_id: int | None = None,
     shipping_group_id: int | None = None,
@@ -292,6 +353,9 @@ def modify_article(
             item_modifications += 1
         if purchase_price is not None:
             db_article.purchase_price = purchase_price
+            item_modifications += 1
+        if sale_price is not None:
+            db_article.sale_price = sale_price
             item_modifications += 1
         if availability_id is not None:
             db_article.id_availability = availability_id

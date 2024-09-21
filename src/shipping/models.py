@@ -49,6 +49,7 @@ class ShippingGroup(Base):
         Integer, ForeignKey('shipping_statuses.id_status'), nullable=False)
     shipping_cost = Column(Numeric(10, 2), nullable=False)
     dollar_price = Column(Numeric(10, 2), nullable=False)
+    tax = Column(Numeric(10, 2), nullable=False)
     # pylint: disable=not-callable
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
