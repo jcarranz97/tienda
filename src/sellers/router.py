@@ -2,13 +2,14 @@
 """FastAPI router related to group1."""
 from fastapi import APIRouter
 from fastapi import Depends
-from sellers import tasks
 from schemas import TaskId
+from . import tasks
 from . import schemas
 from auth import get_current_username
 from fastapi.responses import JSONResponse
 
 router = APIRouter()
+
 
 @router.post("/request-add")
 async def send_add_task(a: int, b: int) -> TaskId:
