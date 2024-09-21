@@ -69,6 +69,7 @@ class GetArticlesResponse(BaseModel):
 class GetArticlesDetailResponse(BaseModel):
     """Get articles detail response schema"""
     articles: list[ArticleDetailResponse]
+    num_articles: int
 
 
 class ModifyArticleResponse(BaseModel):

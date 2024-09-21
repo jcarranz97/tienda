@@ -221,7 +221,10 @@ def get_articles(shipping_group_name: str | None = None):
             ).dict()
             for db_article in query.all()
         ]
-        return schemas.GetArticlesDetailResponse(articles=articles).dict()
+        return schemas.GetArticlesDetailResponse(
+            articles=articles,
+            num_articles=len(articles),
+        ).dict()
 
 
 @shared_task
