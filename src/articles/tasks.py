@@ -2,14 +2,11 @@
 """Celery tasks related to group2."""
 from celery import shared_task
 from sqlalchemy import select
-from sqlalchemy import func
-from sqlalchemy.sql.expression import case
-from sqlalchemy.orm import aliased
 from database import Session
 from shipping.models import ShippingGroup
 from . import models
 from . import schemas
-from . import formulas
+from . import queries
 
 
 @shared_task
@@ -202,52 +199,8 @@ def delete_location(location_id: int):
 def get_articles():
     """Get articles from database"""
     with Session() as session:
-        # Create an alias for the subquery counting articles per shipping group
-        article_count_subquery = (
-            select(
-                models.Article.id_shipping_group,
-                func.count(models.Article.id_article).label('article_count')
-            )
-            .group_by(models.Article.id_shipping_group)
-            .subquery()
-        )
-
-        # Create an alias to work with the subquery
-        ArticleCount = aliased(article_count_subquery)
-
         # Main query to fetch the required fields, including the "profit"
-        query = (
-            session.query(
-                models.Article.id_article,
-                models.Article.description,
-                models.Article.shipping_label,
-                models.Article.purchase_price,
-                ShippingGroup.shipping_group_name,
-                ShippingGroup.dollar_price,
-                ShippingGroup.tax,
-                ShippingGroup.shipping_cost,
-                models.Location.location_name,
-                # Calculate purchase_price_mxn using the helper function
-                formulas.calculate_purchase_price_mxn(
-                    models.Article,
-                    ShippingGroup,
-                    ArticleCount,
-                ),
-                # Calculate profit using the helper function
-                formulas.calculate_profit(
-                    models.Article,
-                    formulas.calculate_purchase_price_mxn(
-                        models.Article,
-                        ShippingGroup,
-                        ArticleCount,
-                    ),
-                ),
-                models.Article.sale_price,
-            )
-            .join(ShippingGroup, models.Article.id_shipping_group == ShippingGroup.id_shipping_group)
-            .join(models.Location, models.Article.id_location == models.Location.id_location)
-            .join(ArticleCount, models.Article.id_shipping_group == ArticleCount.c.id_shipping_group)
-        )
+        query = queries.get_article_query(session)
 
         articles = [
             schemas.ArticleDetailResponse(
@@ -274,40 +227,7 @@ def get_article(article_id: int):
     """Get article from database"""
     # Same as get_articles, but with a filter by article_id in the query
     with Session() as session:
-        # Create an alias for the subquery counting articles per shipping group
-        article_count_subquery = (
-            select(
-                models.Article.id_shipping_group,
-                func.count(models.Article.id_article).label('article_count')
-            )
-            .group_by(models.Article.id_shipping_group)
-            .subquery()
-        )
-
-        # Create an alias to work with the subquery
-        ArticleCount = aliased(article_count_subquery)
-
-        # Main query using ORM models
-        query = (
-            session.query(
-                models.Article.id_article,
-                models.Article.description,
-                models.Article.shipping_label,
-                models.Article.purchase_price,
-                ShippingGroup.shipping_group_name,
-                ShippingGroup.dollar_price,
-                ShippingGroup.tax,
-                ShippingGroup.shipping_cost,
-                models.Location.location_name,
-                models.Article.sale_price,
-                (models.Article.purchase_price * ShippingGroup.dollar_price * (1 + (ShippingGroup.tax * 0.01)) +
-                 (ShippingGroup.shipping_cost / ArticleCount.c.article_count)).label('purchase_price_mx')
-            )
-            .join(ShippingGroup, models.Article.id_shipping_group == ShippingGroup.id_shipping_group)
-            .join(models.Location, models.Article.id_location == models.Location.id_location)
-            .join(ArticleCount, models.Article.id_shipping_group == ArticleCount.c.id_shipping_group)
-            .filter(models.Article.id_article == article_id)
-        )
+        query = queries.get_article_query(session, article_id)
 
         db_article = query.first()
         if not db_article:
@@ -322,10 +242,10 @@ def get_article(article_id: int):
             tax=db_article.tax,
             shipping_cost=db_article.shipping_cost,
             location_name=db_article.location_name,
-            purchase_price_mxn=db_article.purchase_price_mx,
+            purchase_price_mxn=db_article.purchase_price_mxn,
+            profit=db_article.profit,
             sale_price=db_article.sale_price,
         ).dict()
-
 
 
 @shared_task
