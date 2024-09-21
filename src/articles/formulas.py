@@ -9,7 +9,7 @@ def calculate_purchase_price_mxn(article, shipping_group, article_count_subquery
     """
     return (
         article.purchase_price * shipping_group.dollar_price * (1 + (shipping_group.tax * 0.01)) +
-        (shipping_group.shipping_cost / article_count_subquery.c.article_count)
+        (shipping_group.shipping_cost / article_count_subquery.c.article_count) * shipping_group.dollar_price
     ).label('purchase_price_mxn')
 
 
