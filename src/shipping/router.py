@@ -28,14 +28,14 @@ async def add_shipping_status(name: str, description: str) -> int:
     return task.get()
 
 
-@router.put("/modify-shipping-status/{status_id}")
-async def modify_shipping_status(
+@router.put("/update-shipping-status/{status_id}")
+async def update_shipping_status(
         status_id: int,
         name: str,
         description: str,
 ) -> int:
-    """Modify a shipping status"""
-    task = tasks.modify_shipping_status.delay(status_id, name, description)
+    """Update a shipping status"""
+    task = tasks.update_shipping_status.delay(status_id, name, description)
     return task.get()
 
 
@@ -89,7 +89,7 @@ async def update_shipping_group(
         tax: float | None = None,
         notes: str | None = None,
         ) -> schemas.UpdateShippingGroupResponse:
-    """Modify a shipping group"""
+    """Update a shipping group"""
     task = tasks.update_shipping_group.delay(
         id_shipping_group=id_shipping_group,
         name=name,

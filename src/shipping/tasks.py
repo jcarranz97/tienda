@@ -70,8 +70,8 @@ def add_shipping_status(name: str, description: str):
 
 
 @shared_task
-def modify_shipping_status(status_id: int, name: str, description: str):
-    """Modify shipping status by status_id"""
+def update_shipping_status(status_id: int, name: str, description: str):
+    """Update shipping status by status_id"""
     with Session() as session:
         db_status = session.scalar(
             select(models.ShippingStatus)
