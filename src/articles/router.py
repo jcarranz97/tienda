@@ -86,7 +86,7 @@ async def get_articles() -> schemas.GetArticlesDetailResponse:
 
 
 @router.get("/get-article/{article_id}")
-async def get_article(article_id: int) -> schemas.ArticleBase:
+async def get_article(article_id: int) -> schemas.ArticleDetailResponse:
     """Get an article"""
     task = tasks.get_article.delay(article_id)
     return task.get()
