@@ -3,6 +3,7 @@
 from celery import shared_task
 from sqlalchemy import select
 from sqlalchemy import func
+from sqlalchemy.sql.expression import case
 from sqlalchemy.orm import aliased
 from database import Session
 from shipping.models import ShippingGroup
@@ -213,7 +214,7 @@ def get_articles():
         # Create an alias to work with the subquery
         ArticleCount = aliased(article_count_subquery)
 
-        # Main query using ORM models
+        # Main query to fetch the required fields, including the "profit"
         query = (
             session.query(
                 models.Article.id_article,
@@ -225,9 +226,17 @@ def get_articles():
                 ShippingGroup.tax,
                 ShippingGroup.shipping_cost,
                 models.Location.location_name,
-                models.Article.sale_price,
                 (models.Article.purchase_price * ShippingGroup.dollar_price * (1 + (ShippingGroup.tax * 0.01)) +
-                 (ShippingGroup.shipping_cost / ArticleCount.c.article_count)).label('purchase_price_mx')
+                 (ShippingGroup.shipping_cost / ArticleCount.c.article_count)).label('purchase_price_mx'),
+                # Calculate profit: If sale_price is NULL, profit should also be NULL
+                case(
+                    (models.Article.sale_price.is_(None), None),  # If sale_price is NULL, profit is NULL
+                    else_=models.Article.sale_price - (
+                        models.Article.purchase_price * ShippingGroup.dollar_price * (1 + (ShippingGroup.tax * 0.01)) +
+                        (ShippingGroup.shipping_cost / ArticleCount.c.article_count)
+                    )
+                ).label('profit'),
+                models.Article.sale_price,
             )
             .join(ShippingGroup, models.Article.id_shipping_group == ShippingGroup.id_shipping_group)
             .join(models.Location, models.Article.id_location == models.Location.id_location)
@@ -247,6 +256,7 @@ def get_articles():
                 location_name=db_article.location_name,
                 purchase_price_mxn=db_article.purchase_price_mx,
                 sale_price=db_article.sale_price,
+                profit=db_article.profit,
             ).dict()
             for db_article in query.all()
         ]

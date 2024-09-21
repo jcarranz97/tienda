@@ -57,6 +57,7 @@ class ArticleDetailResponse(BaseModel):
     location_name: str
     purchase_price_mxn: float | None
     sale_price: float | None
+    profit: float | None
 
 
 class GetArticlesResponse(BaseModel):
