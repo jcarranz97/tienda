@@ -9,6 +9,7 @@ from database import Session
 from shipping.models import ShippingGroup
 from . import models
 from . import schemas
+from . import formulas
 
 
 @shared_task
@@ -226,16 +227,21 @@ def get_articles():
                 ShippingGroup.tax,
                 ShippingGroup.shipping_cost,
                 models.Location.location_name,
-                (models.Article.purchase_price * ShippingGroup.dollar_price * (1 + (ShippingGroup.tax * 0.01)) +
-                 (ShippingGroup.shipping_cost / ArticleCount.c.article_count)).label('purchase_price_mx'),
-                # Calculate profit: If sale_price is NULL, profit should also be NULL
-                case(
-                    (models.Article.sale_price.is_(None), None),  # If sale_price is NULL, profit is NULL
-                    else_=models.Article.sale_price - (
-                        models.Article.purchase_price * ShippingGroup.dollar_price * (1 + (ShippingGroup.tax * 0.01)) +
-                        (ShippingGroup.shipping_cost / ArticleCount.c.article_count)
-                    )
-                ).label('profit'),
+                # Calculate purchase_price_mxn using the helper function
+                formulas.calculate_purchase_price_mxn(
+                    models.Article,
+                    ShippingGroup,
+                    ArticleCount,
+                ),
+                # Calculate profit using the helper function
+                formulas.calculate_profit(
+                    models.Article,
+                    formulas.calculate_purchase_price_mxn(
+                        models.Article,
+                        ShippingGroup,
+                        ArticleCount,
+                    ),
+                ),
                 models.Article.sale_price,
             )
             .join(ShippingGroup, models.Article.id_shipping_group == ShippingGroup.id_shipping_group)
@@ -254,7 +260,7 @@ def get_articles():
                 tax=db_article.tax,
                 shipping_cost=db_article.shipping_cost,
                 location_name=db_article.location_name,
-                purchase_price_mxn=db_article.purchase_price_mx,
+                purchase_price_mxn=db_article.purchase_price_mxn,
                 sale_price=db_article.sale_price,
                 profit=db_article.profit,
             ).dict()
