@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """This module defines formulas needed to article management."""
 from sqlalchemy.sql.expression import case
+from sqlalchemy.sql import func
 
 
 def calculate_purchase_price_mxn(article, shipping_group, article_count_subquery):
@@ -8,8 +9,11 @@ def calculate_purchase_price_mxn(article, shipping_group, article_count_subquery
     Calculate the purchase price in MXN (purchase_price_mxn).
     """
     return (
-        article.purchase_price * shipping_group.dollar_price * (1 + (shipping_group.tax * 0.01)) +
-        (shipping_group.shipping_cost / article_count_subquery.c.article_count) * shipping_group.dollar_price
+        func.round(
+            article.purchase_price * shipping_group.dollar_price * (1 + (shipping_group.tax * 0.01)) +
+            (shipping_group.shipping_cost / article_count_subquery.c.article_count) * shipping_group.dollar_price,
+            2  # Round to 2 decimal places
+        )
     ).label('purchase_price_mxn')
 
 
