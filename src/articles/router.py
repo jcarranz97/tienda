@@ -137,7 +137,7 @@ async def modify_article(
     description: str | None = None,
     shipping_label: str | None = None,
     purchase_price: float | None = None,
-    id_availability: int | None = None,
+    id_article_status: int | None = None,
     id_location: int | None = None,
     id_shipping_group: int | None = None,
     sale_price: float | None = None,
@@ -149,9 +149,32 @@ async def modify_article(
         shipping_label=shipping_label,
         purchase_price=purchase_price,
         sale_price=sale_price,
-        id_availability=id_availability,
+        id_article_status=id_article_status,
         id_location=id_location,
         id_shipping_group=id_shipping_group,
+    )
+    return task.get()
+
+
+@router.put("/modify-article-by-shipping-group-and-label")
+async def modify_article_by_shipping_group_and_label(
+    shipping_group_name: str,
+    shipping_label: str,
+    description: str | None = None,
+    purchase_price: float | None = None,
+    sale_price: float | None = None,
+    location: str | None = None,
+    status: str | None = None,
+) -> schemas.ModifyArticleResponse:
+    """Modify an article by shipping group and label"""
+    task = tasks.modify_article_by_shipping_group_and_label.delay(
+        shipping_group_name=shipping_group_name,
+        shipping_label=shipping_label,
+        description=description,
+        purchase_price=purchase_price,
+        sale_price=sale_price,
+        location=location,
+        status=status,
     )
     return task.get()
 

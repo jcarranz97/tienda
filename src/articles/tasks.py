@@ -382,6 +382,64 @@ def modify_article(
 
 
 @shared_task
+def modify_article_by_shipping_group_and_label(
+    shipping_group_name: str,
+    shipping_label: str,
+    description: str | None = None,
+    purchase_price: float | None = None,
+    sale_price: float | None = None,
+    location: str | None = None,
+    status: str | None = None,
+):
+    """Modify article by shipping group and label"""
+    with Session() as session:
+        db_shipping_group = get_shipping_group_by_name(
+            session=session,
+            shipping_group_name=shipping_group_name,
+        )
+        db_article = session.scalar(
+            select(models.Article)
+            .where(
+                models.Article.shipping_label == shipping_label,
+                models.Article.id_shipping_group == db_shipping_group.id_shipping_group  # noqa: E501, pylint: disable=line-too-long
+            )
+        )
+        # Only update the fields that are not None in the request.
+        # If all fields are None, the article will not be modified. This is
+        # should trigger a validation error in the API.
+        item_modifications = 0
+        if description is not None:
+            db_article.description = description
+            item_modifications += 1
+        if purchase_price is not None:
+            db_article.purchase_price = purchase_price
+            item_modifications += 1
+        if sale_price is not None:
+            db_article.sale_price = sale_price
+            item_modifications += 1
+        if location is not None:
+            db_location = queries.get_article_location_by_name(
+                session=session,
+                location_name=location,
+            )
+            db_article.id_location = db_location.id_location
+            item_modifications += 1
+        if status is not None:
+            db_status = queries.get_article_status_by_name(
+                session=session,
+                status_name=status,
+            )
+            db_article.id_article_status = db_status.id_article_status
+            item_modifications += 1
+        if item_modifications == 0:
+            raise ValueError("No fields to modify.")
+        session.commit()
+        return schemas.ModifyArticleResponse(
+            id=db_article.id_article, modified_items=item_modifications
+        ).dict()
+
+
+@shared_task
 def delete_article(article_id: int):
     """Delete article by article_id"""
     with Session() as session:
