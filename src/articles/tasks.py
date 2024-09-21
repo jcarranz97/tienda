@@ -69,8 +69,8 @@ def add_article_status(name: str):
 
 
 @shared_task
-def modify_article_status(id_article_status: int, name: str):
-    """Modify article status by id_article_status"""
+def update_article_status(id_article_status: int, name: str):
+    """Update article status by id_article_status"""
     with Session() as session:
         db_status = session.scalar(
             select(models.ArticleStatus)
@@ -157,8 +157,8 @@ def add_location(name: str):
 
 
 @shared_task
-def modify_location(location_id: int, name: str):
-    """Modify location by location_id"""
+def update_location(location_id: int, name: str):
+    """Update location by location_id"""
     with Session() as session:
         db_location = session.scalar(
             select(models.Location)
@@ -330,7 +330,7 @@ def add_article(
 
 
 @shared_task
-def modify_article(
+def update_article(
     article_id: int,
     description: str | None = None,
     shipping_label: str | None = None,
@@ -340,7 +340,7 @@ def modify_article(
     id_location: int | None = None,
     id_shipping_group: int | None = None,
 ):
-    """Modify article by article_id"""
+    """Update article by article_id"""
     with Session() as session:
         db_article = session.scalar(
             select(models.Article)
@@ -349,7 +349,7 @@ def modify_article(
         if not db_article:
             raise ValueError(f"Article with ID {article_id} not found.")
         # Only update the fields that are not None in the request.
-        # If all fields are None, the article will not be modified. This is
+        # If all fields are None, the article will not be updated. This is
         # should trigger a validation error in the API.
         item_modifications = 0
         if description is not None:
@@ -374,15 +374,15 @@ def modify_article(
             db_article.id_shipping_group = id_shipping_group
             item_modifications += 1
         if item_modifications == 0:
-            raise ValueError("No fields to modify.")
+            raise ValueError("No fields to update.")
         session.commit()
-        return schemas.ModifyArticleResponse(
-            id=article_id, modified_items=item_modifications
+        return schemas.UpdateArticleResponse(
+            id=article_id, updated_items=item_modifications
         ).dict()
 
 
 @shared_task
-def modify_article_by_shipping_group_and_label(
+def update_article_by_shipping_group_and_label(
     shipping_group_name: str,
     shipping_label: str,
     description: str | None = None,
@@ -391,7 +391,7 @@ def modify_article_by_shipping_group_and_label(
     location: str | None = None,
     status: str | None = None,
 ):
-    """Modify article by shipping group and label"""
+    """Update article by shipping group and label"""
     with Session() as session:
         db_shipping_group = get_shipping_group_by_name(
             session=session,
@@ -405,7 +405,7 @@ def modify_article_by_shipping_group_and_label(
             )
         )
         # Only update the fields that are not None in the request.
-        # If all fields are None, the article will not be modified. This is
+        # If all fields are None, the article will not be updated. This is
         # should trigger a validation error in the API.
         item_modifications = 0
         if description is not None:
@@ -432,10 +432,10 @@ def modify_article_by_shipping_group_and_label(
             db_article.id_article_status = db_status.id_article_status
             item_modifications += 1
         if item_modifications == 0:
-            raise ValueError("No fields to modify.")
+            raise ValueError("No fields to update.")
         session.commit()
-        return schemas.ModifyArticleResponse(
-            id=db_article.id_article, modified_items=item_modifications
+        return schemas.UpdateArticleResponse(
+            id=db_article.id_article, updated_items=item_modifications
         ).dict()
 
 

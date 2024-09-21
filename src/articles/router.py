@@ -28,10 +28,10 @@ async def add_article_status(name: str) -> int:
     return task.get()
 
 
-@router.put("/modify-article-status/{id_article_status}")
-async def modify_article_status(id_article_status: int, name: str) -> int:
-    """Modify an article status"""
-    task = tasks.modify_article_status.delay(id_article_status, name)
+@router.put("/update-article-status/{id_article_status}")
+async def update_article_status(id_article_status: int, name: str) -> int:
+    """Update an article status"""
+    task = tasks.update_article_status.delay(id_article_status, name)
     return task.get()
 
 
@@ -64,10 +64,10 @@ async def add_location(name: str) -> int:
     return task.get()
 
 
-@router.put("/modify-location/{location_id}")
-async def modify_location(location_id: int, name: str) -> int:
-    """Modify a location"""
-    task = tasks.modify_location.delay(location_id, name)
+@router.put("/update-location/{location_id}")
+async def update_location(location_id: int, name: str) -> int:
+    """Update a location"""
+    task = tasks.update_location.delay(location_id, name)
     return task.get()
 
 
@@ -131,8 +131,8 @@ async def add_article(
     return task.get()
 
 
-@router.put("/modify-article/{article_id}")
-async def modify_article(
+@router.put("/update-article/{article_id}")
+async def update_article(
     article_id: int,
     description: str | None = None,
     shipping_label: str | None = None,
@@ -141,9 +141,9 @@ async def modify_article(
     id_location: int | None = None,
     id_shipping_group: int | None = None,
     sale_price: float | None = None,
-) -> schemas.ModifyArticleResponse:
-    """Modify an article"""
-    task = tasks.modify_article.delay(
+) -> schemas.UpdateArticleResponse:
+    """Update an article"""
+    task = tasks.update_article.delay(
         article_id=article_id,
         description=description,
         shipping_label=shipping_label,
@@ -156,8 +156,8 @@ async def modify_article(
     return task.get()
 
 
-@router.put("/modify-article-by-shipping-group-and-label")
-async def modify_article_by_shipping_group_and_label(
+@router.put("/update-article-by-shipping-group-and-label")
+async def update_article_by_shipping_group_and_label(
     shipping_group_name: str,
     shipping_label: str,
     description: str | None = None,
@@ -165,9 +165,9 @@ async def modify_article_by_shipping_group_and_label(
     sale_price: float | None = None,
     location: str | None = None,
     status: str | None = None,
-) -> schemas.ModifyArticleResponse:
-    """Modify an article by shipping group and label"""
-    task = tasks.modify_article_by_shipping_group_and_label.delay(
+) -> schemas.UpdateArticleResponse:
+    """Update an article by shipping group and label"""
+    task = tasks.update_article_by_shipping_group_and_label.delay(
         shipping_group_name=shipping_group_name,
         shipping_label=shipping_label,
         description=description,

@@ -72,7 +72,7 @@ class GetArticlesDetailResponse(BaseModel):
     num_articles: int
 
 
-class ModifyArticleResponse(BaseModel):
-    """Modify article response schema"""
+class UpdateArticleResponse(BaseModel):
+    """Update article response schema"""
     id: int
-    modified_items: int
+    updated_items: int
