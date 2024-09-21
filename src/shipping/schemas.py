@@ -2,6 +2,7 @@
 """Seller schemas"""
 from datetime import datetime
 from pydantic import BaseModel
+from shippers.schemas import ShipperBase
 
 
 class ShippingStatusBase(BaseModel):
@@ -16,3 +17,21 @@ class ShippingStatusBase(BaseModel):
 class GetShippingStatusesResponse(BaseModel):
     """Get shipping statuses response schema"""
     statuses: list[ShippingStatusBase]
+
+
+class ShippingGroupBase(BaseModel):
+    """Shipping group base schema"""
+    id: int
+    name: str
+    id_shipper: int
+    id_status: int
+    shipping_cost: float
+    dollar_price: float
+    created_at: datetime
+    updated_at: datetime
+    notes: str | None
+
+
+class GetShippingGroupsResponse(BaseModel):
+    """Get shipping groups response schema"""
+    groups: list[ShippingGroupBase]

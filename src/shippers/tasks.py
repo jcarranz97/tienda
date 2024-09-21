@@ -15,7 +15,7 @@ def get_shippers():
         shippers = [
             schemas.ShipperBase(
                 id=db_shipper.id_shipper,
-                name=db_shipper.name,
+                name=db_shipper.shipper_name,
                 created_at=db_shipper.created_at,
                 updated_at=db_shipper.updated_at,
             ).dict()
@@ -36,7 +36,7 @@ def get_shipper(shipper_id: int):
             raise ValueError(f"Shipper with ID {shipper_id} not found.")
         return schemas.ShipperBase(
             id=db_shipper.id_shipper,
-            name=db_shipper.name,
+            name=db_shipper.shipper_name,
             created_at=db_shipper.created_at,
             updated_at=db_shipper.updated_at,
         ).dict()
@@ -50,13 +50,13 @@ def add_shipper(name: str):
         # shipper with the same name in the database. This is a business rule
         # that should be enforced.
         db_shipper = session.scalar(
-            select(models.Shipper).where(models.Shipper.name == name)
+            select(models.Shipper).where(models.Shipper.shipper_name == name)
         )
         if db_shipper:
             raise ValueError(
                 f"Shipper '{name}' already exists in the database.")
 
-        new_shipper = models.Shipper(name=name)
+        new_shipper = models.Shipper(shipper_name=name)
         session.add(new_shipper)
         session.commit()
         return new_shipper.id_shipper

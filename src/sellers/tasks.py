@@ -37,7 +37,7 @@ def get_sellers():
         sellers = [
             schemas.SellerBase(
                 id=db_seller.id_seller,
-                name=db_seller.name,
+                name=db_seller.seller_name,
                 created_at=db_seller.created_at,
                 updated_at=db_seller.updated_at,
             ).dict()
@@ -57,7 +57,7 @@ def get_seller(seller_id: int):
             raise ValueError(f"Seller with ID {seller_id} not found.")
         return schemas.SellerBase(
             id=db_seller.id_seller,
-            name=db_seller.name,
+            name=db_seller.seller_name,
             created_at=db_seller.created_at,
             updated_at=db_seller.updated_at,
         ).dict()
@@ -71,13 +71,13 @@ def add_seller(name: str):
         # with the same name in the database. This is a business rule that
         # should be enforced.
         db_seller = session.scalar(
-            select(models.Seller).where(models.Seller.name == name)
+            select(models.Seller).where(models.Seller.seller_name == name)
         )
         if db_seller:
             raise ValueError(
                 f"Seller '{name}' already exists in the database.")
 
-        new_seller = models.Seller(name=name)
+        new_seller = models.Seller(seller_name=name)
         session.add(new_seller)
         session.commit()
         return schemas.AddSellerResponse(id=new_seller.id_seller).dict()
@@ -92,7 +92,7 @@ def modify_seller(seller_id: int, seller_name: str):
         )
         if not db_seller:
             raise ValueError(f"Seller with ID {seller_id} not found.")
-        db_seller.name = seller_name
+        db_seller.seller_name = seller_name
         session.commit()
         return seller_id
 

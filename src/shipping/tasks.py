@@ -3,6 +3,7 @@
 from celery import shared_task
 from sqlalchemy import select
 from database import Session
+from shippers.models import Shipper
 from . import models
 from . import schemas
 
@@ -97,3 +98,99 @@ def delete_shipping_status(status_id: int):
         session.delete(db_status)
         session.commit()
         return status_id
+
+
+@shared_task
+def get_shipping_groups():
+    """Get shipping groups from database"""
+    with Session() as session:
+        db_groups = session.scalars(select(models.ShippingGroup)).all()
+        groups = [
+            schemas.ShippingGroupBase(
+                id=db_group.id_shipping_group,
+                name=db_group.shipping_group_name,
+                id_shipper=db_group.id_shipper,
+                id_status=db_group.id_status,
+                shipping_cost=db_group.shipping_cost,
+                dollar_price=db_group.dollar_price,
+                created_at=db_group.created_at,
+                updated_at=db_group.updated_at,
+                notes=db_group.notes,
+            ).dict()
+            for db_group in db_groups
+        ]
+        return schemas.GetShippingGroupsResponse(groups=groups).dict()
+
+
+@shared_task
+def get_shipping_group(group_id: int):
+    """Get shipping group from database"""
+    with Session() as session:
+        db_group = session.scalar(
+            select(models.ShippingGroup)
+            .where(models.ShippingGroup.id_shipping_group == group_id)
+        )
+        if not db_group:
+            raise ValueError(f"Shipping group with ID {group_id} not found.")
+        return schemas.ShippingGroupBase(
+            id=db_group.id_shipping_group,
+            name=db_group.shipping_group_name,
+            id_shipper=db_group.id_shipper,
+            id_status=db_group.id_status,
+            shipping_cost=db_group.shipping_cost,
+            dollar_price=db_group.dollar_price,
+            created_at=db_group.created_at,
+            updated_at=db_group.updated_at,
+            notes=db_group.notes,
+        ).dict()
+
+
+# pylint: disable=too-many-arguments
+@shared_task
+def add_shipping_group(
+        name: str,
+        id_shipper: int,
+        id_status: int,
+        shipping_cost: float,
+        dollar_price: float,
+        notes: str | None,
+):
+    """Add shipping group to database"""
+    with Session() as session:
+        # Before adding a new shipping group, we should confirm that there is
+        # no shipping group with the same name in the database. This is a
+        # business rule that should be enforced.
+        db_group = session.scalar(
+            select(models.ShippingGroup)
+            .where(models.ShippingGroup.shipping_group_name == name)
+        )
+        if db_group:
+            raise ValueError(
+                f"Shipping group '{name}' already exists in the database.")
+
+
+        # Check if the shipper and status exist
+        db_shipper = session.scalar(
+            select(Shipper).where(Shipper.id_shipper == id_shipper)
+        )
+        if not db_shipper:
+            raise ValueError(f"Shipper with ID {id_shipper} not found.")
+        db_status = session.scalar(
+            select(models.ShippingStatus)
+            .where(models.ShippingStatus.id_status == id_status)
+        )
+        if not db_status:
+            raise ValueError(f"Shipping status with ID {id_status} not found.")
+
+        # Add the new shipping group
+        new_group = models.ShippingGroup(
+            shipping_group_name=name,
+            id_shipper=id_shipper,
+            id_status=id_status,
+            shipping_cost=shipping_cost,
+            dollar_price=dollar_price,
+            notes=notes,
+        )
+        session.add(new_group)
+        session.commit()
+        return new_group.id_shipping_group

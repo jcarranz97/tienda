@@ -13,7 +13,7 @@ class Seller(Base):
     __tablename__ = 'sellers'
 
     id_seller = Column(Integer, primary_key=True)
-    name = Column("seller_name", String, nullable=False)
+    seller_name = Column("seller_name", String, nullable=False)
     created_at = Column(
         "created_at",
         DateTime,
