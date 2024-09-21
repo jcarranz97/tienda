@@ -63,8 +63,8 @@ def add_shipper(name: str):
 
 
 @shared_task
-def modify_shipper(shipper_id: int, name: str):
-    """Modify shipper by shipper_id"""
+def update_shipper(shipper_id: int, name: str):
+    """Update shipper by shipper_id"""
     with Session() as session:
         db_shipper = session.scalar(
             select(models.Shipper)

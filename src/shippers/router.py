@@ -28,10 +28,10 @@ async def add_shipper(name: str) -> int:
     return task.get()
 
 
-@router.put("/modify-shipper/{shipper_id}")
-async def modify_shipper(shipper_id: int, name: str) -> int:
-    """Modify a shipper"""
-    task = tasks.modify_shipper.delay(shipper_id, name)
+@router.put("/update-shipper/{shipper_id}")
+async def update_shipper(shipper_id: int, name: str) -> int:
+    """Update a shipper"""
+    task = tasks.update_shipper.delay(shipper_id, name)
     return task.get()
 
 
