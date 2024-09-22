@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from . import models
 from sqlalchemy import select
+from . import models
 
 
 def get_shipping_group_by_name(session, shipping_group_name):

@@ -3,8 +3,6 @@
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy import DateTime
-from sqlalchemy import func
 from sqlalchemy import ForeignKey
 from sqlalchemy import Numeric
 from sqlalchemy import Text
@@ -19,19 +17,6 @@ class ShippingStatus(Base):
     id_status = Column(Integer, primary_key=True)
     status_name = Column("status_name", String, nullable=False)
     description = Column("description", String, nullable=False)
-    created_at = Column(
-        "created_at",
-        DateTime,
-        nullable=False,
-        default=func.now(),  # pylint: disable=not-callable
-    )
-    updated_at = Column(
-        "updated_at",
-        DateTime,
-        nullable=False,
-        default=func.now(),  # pylint: disable=not-callable
-        onupdate=func.now(),  # pylint: disable=not-callable
-    )
 
     # Relationships
     shipping_groups = relationship("ShippingGroup", back_populates="status")
@@ -50,9 +35,6 @@ class ShippingGroup(Base):
     shipping_cost = Column(Numeric(10, 2), nullable=False)
     dollar_price = Column(Numeric(10, 2), nullable=False)
     tax = Column(Numeric(10, 2), nullable=False)
-    # pylint: disable=not-callable
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     notes = Column(Text, nullable=True)
 
     # Relationships

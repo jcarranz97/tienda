@@ -147,7 +147,6 @@ def get_shipping_group(group_id: int):
         ).dict()
 
 
-# pylint: disable=too-many-arguments
 @shared_task
 def add_shipping_group(
         name: str,

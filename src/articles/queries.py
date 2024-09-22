@@ -19,7 +19,7 @@ def get_article_query(
     article_count_subquery = (
         select(
             models.Article.id_shipping_group,
-            func.count(models.Article.id_article).label('article_count')
+            func.count(models.Article.id_article).label('article_count')  # pylint: disable=not-callable
         )
         .group_by(models.Article.id_shipping_group)
         .subquery()

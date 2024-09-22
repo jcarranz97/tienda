@@ -2,7 +2,6 @@
 """Seller schemas"""
 from datetime import datetime
 from pydantic import BaseModel
-from shippers.schemas import ShipperBase
 
 
 class ShippingStatusBase(BaseModel):
