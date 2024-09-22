@@ -13,7 +13,6 @@ celery_app = Celery(
     backend="redis://localhost:6379/0",
     include=[
         "group1.tasks",
-        "group2.tasks",
     ],
 )
 ```

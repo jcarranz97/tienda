@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Celery tasks related to group2."""
+"""Celery tasks related to shippers."""
 from celery import shared_task
 from sqlalchemy import select
 from database import Session

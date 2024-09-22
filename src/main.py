@@ -12,7 +12,6 @@ from sellers.router import router as sellers_router
 from shippers.router import router as shippers_router
 from shipping.router import router as shipping_router
 from articles.router import router as articles_router
-from group2.router import router as group2_router
 from auth import get_current_username
 
 
@@ -21,7 +20,6 @@ app.include_router(sellers_router, prefix="/sellers", tags=["sellers"])
 app.include_router(shippers_router, prefix="/shippers", tags=["shippers"])
 app.include_router(shipping_router, prefix="/shipping", tags=["shipping"])
 app.include_router(articles_router, prefix="/articles", tags=["articles"])
-app.include_router(group2_router, prefix="/group2")
 
 
 # Include exception handlers
