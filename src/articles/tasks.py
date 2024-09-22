@@ -192,6 +192,8 @@ def get_articles(shipping_group_name: str | None = None):
     with Session() as session:
         # Before fetching the articles, we need to confirm that
         # shipping_group_name is valid (If entered),
+        db_shipping_group = None  # Initialize as None
+
         if shipping_group_name:
             db_shipping_group = get_shipping_group_by_name(
                 session=session,
@@ -302,6 +304,9 @@ def add_article(
 ):
     """Add article to database"""
     with Session() as session:
+        # Initalizing db_shipping_group as None
+        db_shipping_group = None
+
         if shipping_group_name:
             db_shipping_group = get_shipping_group_by_name(
                 session=session,

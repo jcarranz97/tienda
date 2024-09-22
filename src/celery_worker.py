@@ -14,7 +14,6 @@ celery_app = Celery(
     ],
 )
 
-# pylint: disable=consider-using-namedtuple-or-dataclass
 celery_app.conf.task_routes = {
     "sellers.tasks.*": {"queue": "base"},
     "shippers.tasks.*": {"queue": "base"},

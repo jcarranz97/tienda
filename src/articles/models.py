@@ -10,6 +10,7 @@ from models import Base
 
 
 class ArticleStatus(Base):
+    """ArticleStatus model"""
     __tablename__ = 'article_statuses'
 
     id_article_status = Column(Integer, primary_key=True, autoincrement=True)
@@ -20,6 +21,7 @@ class ArticleStatus(Base):
 
 
 class Location(Base):
+    """Location model"""
     __tablename__ = 'locations'
 
     id_location = Column(Integer, primary_key=True, autoincrement=True)
