@@ -60,7 +60,6 @@ async def get_shipping_group(group_id: int) -> schemas.ShippingGroupBase:
     return task.get()
 
 
-# pylint: disable=too-many-arguments
 @router.post("/add-shipping-group")
 async def add_shipping_group(
         name: str,

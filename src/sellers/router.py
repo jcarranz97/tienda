@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 """FastAPI router related to group1."""
 from fastapi import APIRouter
-from fastapi import Depends
 from schemas import TaskId
 from . import tasks
 from . import schemas
-from auth import get_current_username
-from fastapi.responses import JSONResponse
 
 router = APIRouter()
 

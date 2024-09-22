@@ -147,7 +147,6 @@ def get_shipping_group(group_id: int):
         ).dict()
 
 
-# pylint: disable=too-many-arguments
 @shared_task
 def add_shipping_group(
         name: str,
@@ -170,7 +169,6 @@ def add_shipping_group(
         if db_group:
             raise ValueError(
                 f"Shipping group '{name}' already exists in the database.")
-
 
         # Check if the shipper and status exist
         db_shipper = session.scalar(

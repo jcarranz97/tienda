@@ -2,6 +2,7 @@
 """Module that defines the authentication for the API."""
 import secrets
 from typing import Annotated
+from collections import namedtuple
 from fastapi import Depends
 from fastapi.security import HTTPBasic
 from fastapi.security.http import HTTPBasicCredentials
@@ -11,17 +12,12 @@ from fastapi import status
 
 security = HTTPBasic()
 
+
+User = namedtuple("User", ["username", "password", "email"])
+
 users_fake_db = {
-    "stanley": {
-        "username": "stanley",
-        "password": "swordfish",
-        "email": "stanley@gmail.com",
-    },
-    "jcarranz": {
-        "username": "jcarranz",
-        "password": "password",
-        "email": "Juan@gmail.com",
-    },
+    "stanley": User("stanley", "swordfish", "stanley@gmail.com"),
+    "jcarranz": User("jcarranz", "password", "Juan@gmail.com"),
 }
 
 
@@ -39,7 +35,7 @@ def get_current_username(
         )
     current_password_bytes = credentials.password.encode("utf8")
     correct_password_bytes = \
-        users_fake_db[credentials.username]["password"].encode("utf8")
+        users_fake_db[credentials.username].password.encode("utf8")
     is_correct_password = secrets.compare_digest(
         current_password_bytes, correct_password_bytes
     )

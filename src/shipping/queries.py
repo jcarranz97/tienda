@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-from . import models
+"""This module defines common queries for article management."""
 from sqlalchemy import select
+from . import models
 
 
 def get_shipping_group_by_name(session, shipping_group_name):

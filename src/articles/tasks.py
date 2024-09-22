@@ -192,6 +192,8 @@ def get_articles(shipping_group_name: str | None = None):
     with Session() as session:
         # Before fetching the articles, we need to confirm that
         # shipping_group_name is valid (If entered),
+        db_shipping_group = None  # Initialize as None
+
         if shipping_group_name:
             db_shipping_group = get_shipping_group_by_name(
                 session=session,
@@ -200,7 +202,7 @@ def get_articles(shipping_group_name: str | None = None):
         # Main query to fetch the required fields, including the "profit"
         query = queries.get_article_query(
             session=session,
-            id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_name else None,  # noqa: E501, pylint: disable=line-too
+            id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_name else None,
         )
 
         articles = [
@@ -234,9 +236,9 @@ def get_article(article_id: int):
     with Session() as session:
         query = queries.get_article_query(session, article_id)
 
-        db_article = query.first()
-        if not db_article:
+        if not (db_article := query.first()):
             raise ValueError(f"Article with ID {article_id} not found.")
+
         return schemas.ArticleDetailResponse(
             id_article=db_article.id_article,
             description=db_article.description,
@@ -270,8 +272,7 @@ def get_article_by_shipping_group_and_label(
             id_shipping_group=db_shipping_group.id_shipping_group,
             shipping_label=shipping_label,
         )
-        db_article = query.first()
-        if not db_article:
+        if not (db_article := query.first()):
             raise ValueError(
                 f"Article with shipping label '{shipping_label}' not found " +
                 f"in the shipping group '{shipping_group_name}'.")
@@ -303,6 +304,9 @@ def add_article(
 ):
     """Add article to database"""
     with Session() as session:
+        # Initalizing db_shipping_group as None
+        db_shipping_group = None
+
         if shipping_group_name:
             db_shipping_group = get_shipping_group_by_name(
                 session=session,
@@ -322,7 +326,7 @@ def add_article(
             purchase_price=purchase_price,
             id_article_status=db_article_status.id_article_status,
             id_location=db_location.id_location,
-            id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_name else None,  # noqa: E501, pylint: disable=line-too-long
+            id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_name else None,
         )
         session.add(new_article)
         session.commit()
@@ -401,7 +405,7 @@ def update_article_by_shipping_group_and_label(
             select(models.Article)
             .where(
                 models.Article.shipping_label == shipping_label,
-                models.Article.id_shipping_group == db_shipping_group.id_shipping_group  # noqa: E501, pylint: disable=line-too-long
+                models.Article.id_shipping_group == db_shipping_group.id_shipping_group
             )
         )
         # Only update the fields that are not None in the request.
@@ -473,7 +477,7 @@ def add_sale_price(
             select(models.Article)
             .where(
                 models.Article.shipping_label == shipping_label,
-                models.Article.id_shipping_group == db_shipping_group.id_shipping_group  # noqa: E501, pylint: disable=line-too-long
+                models.Article.id_shipping_group == db_shipping_group.id_shipping_group
             )
         )
         if not db_article:

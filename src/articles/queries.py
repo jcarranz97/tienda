@@ -8,6 +8,22 @@ from . import models
 from . import formulas
 
 
+def _get_article_count_subquery():
+    """Get article count subquery"""
+    # Create an alias for the subquery counting articles per shipping group
+    return (
+        select(
+            models.Article.id_shipping_group,
+            func.count(models.Article.id_article).label('article_count')  # pylint: disable=not-callable
+        )
+        .group_by(models.Article.id_shipping_group)
+    )
+
+
+# Create an alias to work with the subquery
+ArticleCount = aliased(_get_article_count_subquery())
+
+
 def get_article_query(
         session,
         article_id=None,
@@ -15,18 +31,6 @@ def get_article_query(
         shipping_label=None,
         ):
     """Get article query"""
-    # Create an alias for the subquery counting articles per shipping group
-    article_count_subquery = (
-        select(
-            models.Article.id_shipping_group,
-            func.count(models.Article.id_article).label('article_count')
-        )
-        .group_by(models.Article.id_shipping_group)
-        .subquery()
-    )
-
-    # Create an alias to work with the subquery
-    ArticleCount = aliased(article_count_subquery)
 
     # Main query to fetch the required fields, including the "profit"
     # Main query using ORM models

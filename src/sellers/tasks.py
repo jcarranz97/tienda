@@ -3,7 +3,6 @@
 from time import sleep
 from celery import shared_task
 from sqlalchemy import select
-from database import engine
 from database import Session
 from . import models
 from . import schemas
