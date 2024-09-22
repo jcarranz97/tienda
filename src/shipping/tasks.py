@@ -170,7 +170,6 @@ def add_shipping_group(
             raise ValueError(
                 f"Shipping group '{name}' already exists in the database.")
 
-
         # Check if the shipper and status exist
         db_shipper = session.scalar(
             select(Shipper).where(Shipper.id_shipper == id_shipper)
