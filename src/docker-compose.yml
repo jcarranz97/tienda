@@ -1,0 +1,52 @@
+version: '3.4'
+services:
+  redis:
+    image: redis
+    restart: always
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+  app:
+    container_name: app
+    build: .
+    command: uvicorn main:app --host 0.0.0.0 --reload
+    volumes:
+      - .:/app
+      - lmdb_files:/root/lmdb_files/
+    ports:
+      - 8000:8000
+    depends_on:
+      - redis
+  celery_worker:
+    build: .
+    command: celery -A celery_worker worker -Q base --loglevel=info --concurrency 5
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - app
+    environment:
+      - DB_HOST=$DB_HOST
+      - DB_PORT=$DB_PORT
+      - DB_USER=$DB_USER
+      - DB_PASS=$DB_PASS
+      - DB_NAME=$DB_NAME
+  flower:
+    container_name: flower
+    build: .
+    command: celery -A celery_worker flower --port=5555
+    volumes:
+      - .:/app
+    ports:
+      - 5556:5555
+    depends_on:
+      - app
+      - redis
+volumes:
+  redis-data:
+  lmdb_files:

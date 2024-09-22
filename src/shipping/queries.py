@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+from . import models
+from sqlalchemy import select
+
+
+def get_shipping_group_by_name(session, shipping_group_name):
+    """Get shipping group by name"""
+    db_shipping_group = session.scalar(
+        select(models.ShippingGroup)
+        .where(models.ShippingGroup.shipping_group_name == shipping_group_name)
+    )
+    if not db_shipping_group:
+        raise ValueError(
+            f"Shipping group '{shipping_group_name}' not found.")
+    return db_shipping_group
