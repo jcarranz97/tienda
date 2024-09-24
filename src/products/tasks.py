@@ -13,9 +13,9 @@ from . import queries
 def get_product_statuses():
     """Get product statuses from database"""
     with Session() as session:
-        db_statuses = session.scalars(select(models.productStatus)).all()
+        db_statuses = session.scalars(select(models.ProductStatus)).all()
         statuses = [
-            schemas.productStatusBase(
+            schemas.ProductStatusBase(
                 id=db_status.id_product_status,
                 name=db_status.status_name,
                 created_at=db_status.created_at,
@@ -31,15 +31,15 @@ def get_product_status(id_product_status: int):
     """Get product status from database"""
     with Session() as session:
         db_status = session.scalar(
-            select(models.productStatus)
+            select(models.ProductStatus)
             .where(
-                models.productStatus.id_product_status == id_product_status
+                models.ProductStatus.id_product_status == id_product_status
             )
         )
         if not db_status:
             raise ValueError(
                 f"product status with ID {id_product_status} not found.")
-        return schemas.productStatusBase(
+        return schemas.ProductStatusBase(
             id=db_status.id_product_status,
             name=db_status.status_name,
             created_at=db_status.created_at,
@@ -55,14 +55,14 @@ def add_product_status(name: str):
         # with the same name in the database. This is a business rule that
         # should be enforced.
         db_status = session.scalar(
-            select(models.productStatus)
-            .where(models.productStatus.status_name == name)
+            select(models.ProductStatus)
+            .where(models.ProductStatus.status_name == name)
         )
         if db_status:
             raise ValueError(
                 f"product status '{name}' already exists in the database.")
 
-        new_status = models.productStatus(status_name=name)
+        new_status = models.ProductStatus(status_name=name)
         session.add(new_status)
         session.commit()
         return new_status.id_product_status
@@ -73,8 +73,8 @@ def update_product_status(id_product_status: int, name: str):
     """Update product status by id_product_status"""
     with Session() as session:
         db_status = session.scalar(
-            select(models.productStatus)
-            .where(models.productStatus.id_product_status == id_product_status)
+            select(models.ProductStatus)
+            .where(models.ProductStatus.id_product_status == id_product_status)
         )
         if not db_status:
             raise ValueError(
@@ -89,8 +89,8 @@ def delete_product_status(id_product_status: int):
     """Delete product status by id_product_status"""
     with Session() as session:
         db_status = session.scalar(
-            select(models.productStatus)
-            .where(models.productStatus.id_product_status == id_product_status)
+            select(models.ProductStatus)
+            .where(models.ProductStatus.id_product_status == id_product_status)
         )
         if not db_status:
             raise ValueError(

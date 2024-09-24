@@ -9,8 +9,8 @@ from sqlalchemy.orm import relationship
 from models import Base
 
 
-class productStatus(Base):
-    """productStatus model"""
+class ProductStatus(Base):
+    """ProductStatus model"""
     __tablename__ = 'product_statuses'
 
     id_product_status = Column(Integer, primary_key=True, autoincrement=True)
@@ -58,7 +58,7 @@ class product(Base):
 
     # Relationships
     product_status = relationship(
-        "productStatus",
+        "ProductStatus",
         back_populates="products",
     )
     location = relationship("Location", back_populates="products")

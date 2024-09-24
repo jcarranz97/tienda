@@ -4,7 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class productStatusBase(BaseModel):
+class ProductStatusBase(BaseModel):
     """product availability base schema"""
     id: int
     name: str
@@ -14,7 +14,7 @@ class productStatusBase(BaseModel):
 
 class GetproductsStatusesResponse(BaseModel):
     """Get products statuses response schema"""
-    statuses: list[productStatusBase]
+    statuses: list[ProductStatusBase]
 
 
 class LocationBase(BaseModel):

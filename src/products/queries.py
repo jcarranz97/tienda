@@ -34,7 +34,7 @@ def get_product_query(
             models.product.shipping_label,
             models.product.purchase_price,
             ShippingGroup.shipping_group_name,
-            models.productStatus.status_name,
+            models.ProductStatus.status_name,
             ShippingGroup.dollar_price,
             ShippingGroup.tax,
             ShippingGroup.shipping_cost,
@@ -59,7 +59,7 @@ def get_product_query(
         .join(ShippingGroup, models.product.id_shipping_group == ShippingGroup.id_shipping_group)
         .join(models.Location, models.product.id_location == models.Location.id_location)
         .join(productCount, models.product.id_shipping_group == productCount.c.id_shipping_group)
-        .join(models.productStatus, models.product.id_product_status == models.productStatus.id_product_status)
+        .join(models.ProductStatus, models.product.id_product_status == models.ProductStatus.id_product_status)
     )
 
     # If product_id is provided, apply the filter
@@ -80,8 +80,8 @@ def get_product_query(
 def get_product_status_by_name(session, status_name):
     """Get product status by name"""
     db_status = session.scalar(
-        select(models.productStatus)
-        .where(models.productStatus.status_name == status_name)
+        select(models.ProductStatus)
+        .where(models.ProductStatus.status_name == status_name)
     )
     if not db_status:
         raise ValueError(

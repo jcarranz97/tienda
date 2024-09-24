@@ -15,7 +15,7 @@ async def get_products_statuses() -> schemas.GetproductsStatusesResponse:
 
 
 @router.get("/get-product-status/{id_product_status}")
-async def get_product_status(id_product_status: int) -> schemas.productStatusBase:
+async def get_product_status(id_product_status: int) -> schemas.ProductStatusBase:
     """Get an product status"""
     task = tasks.get_product_status.delay(id_product_status)
     return task.get()
