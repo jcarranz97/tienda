@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Router for the API for article management."""
+"""Router for the API for product management."""
 from fastapi import APIRouter
 from . import schemas
 from . import tasks
@@ -7,38 +7,38 @@ from . import tasks
 router = APIRouter()
 
 
-@router.get("/get-articles-statuses")
-async def get_articles_statuses() -> schemas.GetArticlesStatusesResponse:
-    """Get all articles statuses"""
-    task = tasks.get_article_statuses.delay()
+@router.get("/get-products-statuses")
+async def get_products_statuses() -> schemas.GetproductsStatusesResponse:
+    """Get all products statuses"""
+    task = tasks.get_product_statuses.delay()
     return task.get()
 
 
-@router.get("/get-article-status/{id_article_status}")
-async def get_article_status(id_article_status: int) -> schemas.ArticleStatusBase:
-    """Get an article status"""
-    task = tasks.get_article_status.delay(id_article_status)
+@router.get("/get-product-status/{id_product_status}")
+async def get_product_status(id_product_status: int) -> schemas.productStatusBase:
+    """Get an product status"""
+    task = tasks.get_product_status.delay(id_product_status)
     return task.get()
 
 
-@router.get("/add-article-status")
-async def add_article_status(name: str) -> int:
-    """Add an article status"""
-    task = tasks.add_article_status.delay(name)
+@router.get("/add-product-status")
+async def add_product_status(name: str) -> int:
+    """Add an product status"""
+    task = tasks.add_product_status.delay(name)
     return task.get()
 
 
-@router.put("/update-article-status/{id_article_status}")
-async def update_article_status(id_article_status: int, name: str) -> int:
-    """Update an article status"""
-    task = tasks.update_article_status.delay(id_article_status, name)
+@router.put("/update-product-status/{id_product_status}")
+async def update_product_status(id_product_status: int, name: str) -> int:
+    """Update an product status"""
+    task = tasks.update_product_status.delay(id_product_status, name)
     return task.get()
 
 
-@router.delete("/delete-article-status/{id_article_status}")
-async def delete_article_status(id_article_status: int) -> int:
-    """Delete an article status"""
-    task = tasks.delete_article_status.delay(id_article_status)
+@router.delete("/delete-product-status/{id_product_status}")
+async def delete_product_status(id_product_status: int) -> int:
+    """Delete an product status"""
+    task = tasks.delete_product_status.delay(id_product_status)
     return task.get()
 
 
@@ -78,86 +78,86 @@ async def delete_location(location_id: int) -> int:
     return task.get()
 
 
-# Article routes
-@router.get("/get-articles")
-async def get_articles(
+# product routes
+@router.get("/get-products")
+async def get_products(
         shipping_group_name: str | None = None,
-        ) -> schemas.GetArticlesDetailResponse:
-    """Get all articles"""
-    task = tasks.get_articles.delay(
+        ) -> schemas.GetproductsDetailResponse:
+    """Get all products"""
+    task = tasks.get_products.delay(
         shipping_group_name=shipping_group_name,
     )
     return task.get()
 
 
-@router.get("/get-article/{article_id}")
-async def get_article(article_id: int) -> schemas.ArticleDetailResponse:
-    """Get an article"""
-    task = tasks.get_article.delay(article_id)
+@router.get("/get-product/{product_id}")
+async def get_product(product_id: int) -> schemas.productDetailResponse:
+    """Get an product"""
+    task = tasks.get_product.delay(product_id)
     return task.get()
 
 
-@router.get("/get-article-by-shipping-group-and-label")
-async def get_article_by_shipping_group_and_label(
+@router.get("/get-product-by-shipping-group-and-label")
+async def get_product_by_shipping_group_and_label(
     shipping_group_name: str,
     shipping_label: str,
-) -> schemas.ArticleDetailResponse:
-    """Get an article by shipping group and label"""
-    task = tasks.get_article_by_shipping_group_and_label.delay(
+) -> schemas.productDetailResponse:
+    """Get an product by shipping group and label"""
+    task = tasks.get_product_by_shipping_group_and_label.delay(
         shipping_group_name=shipping_group_name,
         shipping_label=shipping_label,
     )
     return task.get()
 
 
-@router.get("/add-article")
-async def add_article(
+@router.get("/add-product")
+async def add_product(
     description: str,
     shipping_label: str,
     purchase_price: float,
-    article_location: str,
-    article_status: str,
+    product_location: str,
+    product_status: str,
     shipping_group_name: str | None = None,
 ) -> int:
-    """Add an article"""
-    task = tasks.add_article.delay(
+    """Add an product"""
+    task = tasks.add_product.delay(
         description,
         shipping_label,
         purchase_price,
-        article_location=article_location,
-        article_status=article_status,
+        product_location=product_location,
+        product_status=product_status,
         shipping_group_name=shipping_group_name,
     )
     return task.get()
 
 
-@router.put("/update-article/{article_id}")
-async def update_article(
-    article_id: int,
+@router.put("/update-product/{product_id}")
+async def update_product(
+    product_id: int,
     description: str | None = None,
     shipping_label: str | None = None,
     purchase_price: float | None = None,
-    id_article_status: int | None = None,
+    id_product_status: int | None = None,
     id_location: int | None = None,
     id_shipping_group: int | None = None,
     sale_price: float | None = None,
-) -> schemas.UpdateArticleResponse:
-    """Update an article"""
-    task = tasks.update_article.delay(
-        article_id=article_id,
+) -> schemas.UpdateproductResponse:
+    """Update an product"""
+    task = tasks.update_product.delay(
+        product_id=product_id,
         description=description,
         shipping_label=shipping_label,
         purchase_price=purchase_price,
         sale_price=sale_price,
-        id_article_status=id_article_status,
+        id_product_status=id_product_status,
         id_location=id_location,
         id_shipping_group=id_shipping_group,
     )
     return task.get()
 
 
-@router.put("/update-article-by-shipping-group-and-label")
-async def update_article_by_shipping_group_and_label(
+@router.put("/update-product-by-shipping-group-and-label")
+async def update_product_by_shipping_group_and_label(
     shipping_group_name: str,
     shipping_label: str,
     description: str | None = None,
@@ -165,9 +165,9 @@ async def update_article_by_shipping_group_and_label(
     sale_price: float | None = None,
     location: str | None = None,
     status: str | None = None,
-) -> schemas.UpdateArticleResponse:
-    """Update an article by shipping group and label"""
-    task = tasks.update_article_by_shipping_group_and_label.delay(
+) -> schemas.UpdateproductResponse:
+    """Update an product by shipping group and label"""
+    task = tasks.update_product_by_shipping_group_and_label.delay(
         shipping_group_name=shipping_group_name,
         shipping_label=shipping_label,
         description=description,
@@ -179,10 +179,10 @@ async def update_article_by_shipping_group_and_label(
     return task.get()
 
 
-@router.delete("/delete-article/{article_id}")
-async def delete_article(article_id: int) -> int:
-    """Delete an article"""
-    task = tasks.delete_article.delay(article_id)
+@router.delete("/delete-product/{product_id}")
+async def delete_product(product_id: int) -> int:
+    """Delete an product"""
+    task = tasks.delete_product.delay(product_id)
     return task.get()
 
 

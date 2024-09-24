@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""This module defines common queries for article management."""
+"""This module defines common queries for product management."""
 from sqlalchemy import select
 from . import models
 

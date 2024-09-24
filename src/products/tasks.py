@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Celery tasks related to articles."""
+"""Celery tasks related to products."""
 from celery import shared_task
 from sqlalchemy import select
 from database import Session
@@ -10,37 +10,37 @@ from . import queries
 
 
 @shared_task
-def get_article_statuses():
-    """Get article statuses from database"""
+def get_product_statuses():
+    """Get product statuses from database"""
     with Session() as session:
-        db_statuses = session.scalars(select(models.ArticleStatus)).all()
+        db_statuses = session.scalars(select(models.productStatus)).all()
         statuses = [
-            schemas.ArticleStatusBase(
-                id=db_status.id_article_status,
+            schemas.productStatusBase(
+                id=db_status.id_product_status,
                 name=db_status.status_name,
                 created_at=db_status.created_at,
                 updated_at=db_status.updated_at,
             ).dict()
             for db_status in db_statuses
         ]
-        return schemas.GetArticlesStatusesResponse(statuses=statuses).dict()
+        return schemas.GetproductsStatusesResponse(statuses=statuses).dict()
 
 
 @shared_task
-def get_article_status(id_article_status: int):
-    """Get article status from database"""
+def get_product_status(id_product_status: int):
+    """Get product status from database"""
     with Session() as session:
         db_status = session.scalar(
-            select(models.ArticleStatus)
+            select(models.productStatus)
             .where(
-                models.ArticleStatus.id_article_status == id_article_status
+                models.productStatus.id_product_status == id_product_status
             )
         )
         if not db_status:
             raise ValueError(
-                f"Article status with ID {id_article_status} not found.")
-        return schemas.ArticleStatusBase(
-            id=db_status.id_article_status,
+                f"product status with ID {id_product_status} not found.")
+        return schemas.productStatusBase(
+            id=db_status.id_product_status,
             name=db_status.status_name,
             created_at=db_status.created_at,
             updated_at=db_status.updated_at,
@@ -48,56 +48,56 @@ def get_article_status(id_article_status: int):
 
 
 @shared_task
-def add_article_status(name: str):
-    """Add article status to database"""
+def add_product_status(name: str):
+    """Add product status to database"""
     with Session() as session:
         # Before adding a new status, we should confirm that there is no status
         # with the same name in the database. This is a business rule that
         # should be enforced.
         db_status = session.scalar(
-            select(models.ArticleStatus)
-            .where(models.ArticleStatus.status_name == name)
+            select(models.productStatus)
+            .where(models.productStatus.status_name == name)
         )
         if db_status:
             raise ValueError(
-                f"Article status '{name}' already exists in the database.")
+                f"product status '{name}' already exists in the database.")
 
-        new_status = models.ArticleStatus(status_name=name)
+        new_status = models.productStatus(status_name=name)
         session.add(new_status)
         session.commit()
-        return new_status.id_article_status
+        return new_status.id_product_status
 
 
 @shared_task
-def update_article_status(id_article_status: int, name: str):
-    """Update article status by id_article_status"""
+def update_product_status(id_product_status: int, name: str):
+    """Update product status by id_product_status"""
     with Session() as session:
         db_status = session.scalar(
-            select(models.ArticleStatus)
-            .where(models.ArticleStatus.id_article_status == id_article_status)
+            select(models.productStatus)
+            .where(models.productStatus.id_product_status == id_product_status)
         )
         if not db_status:
             raise ValueError(
-                f"Article status with ID {id_article_status} not found.")
+                f"product status with ID {id_product_status} not found.")
         db_status.status_name = name
         session.commit()
-        return id_article_status
+        return id_product_status
 
 
 @shared_task
-def delete_article_status(id_article_status: int):
-    """Delete article status by id_article_status"""
+def delete_product_status(id_product_status: int):
+    """Delete product status by id_product_status"""
     with Session() as session:
         db_status = session.scalar(
-            select(models.ArticleStatus)
-            .where(models.ArticleStatus.id_article_status == id_article_status)
+            select(models.productStatus)
+            .where(models.productStatus.id_product_status == id_product_status)
         )
         if not db_status:
             raise ValueError(
-                f"Article status with ID {id_article_status} not found.")
+                f"product status with ID {id_product_status} not found.")
         session.delete(db_status)
         session.commit()
-        return id_article_status
+        return id_product_status
 
 
 @shared_task
@@ -187,10 +187,10 @@ def delete_location(location_id: int):
 
 
 @shared_task
-def get_articles(shipping_group_name: str | None = None):
-    """Get articles from database"""
+def get_products(shipping_group_name: str | None = None):
+    """Get products from database"""
     with Session() as session:
-        # Before fetching the articles, we need to confirm that
+        # Before fetching the products, we need to confirm that
         # shipping_group_name is valid (If entered),
         db_shipping_group = None  # Initialize as None
 
@@ -200,100 +200,100 @@ def get_articles(shipping_group_name: str | None = None):
                 shipping_group_name=shipping_group_name,
             )
         # Main query to fetch the required fields, including the "profit"
-        query = queries.get_article_query(
+        query = queries.get_product_query(
             session=session,
             id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_name else None,
         )
 
-        articles = [
-            schemas.ArticleDetailResponse(
-                id_article=db_article.id_article,
-                description=db_article.description,
-                shipping_label=db_article.shipping_label,
-                purchase_price=db_article.purchase_price,
-                shipping_group=db_article.shipping_group_name,
-                status=db_article.status_name,
-                location_name=db_article.location_name,
-                purchase_price_mxn=db_article.purchase_price_mxn,
-                sale_price=db_article.sale_price,
-                profit=db_article.profit,
+        products = [
+            schemas.productDetailResponse(
+                id_product=db_product.id_product,
+                description=db_product.description,
+                shipping_label=db_product.shipping_label,
+                purchase_price=db_product.purchase_price,
+                shipping_group=db_product.shipping_group_name,
+                status=db_product.status_name,
+                location_name=db_product.location_name,
+                purchase_price_mxn=db_product.purchase_price_mxn,
+                sale_price=db_product.sale_price,
+                profit=db_product.profit,
             ).dict()
-            for db_article in query.all()
+            for db_product in query.all()
         ]
-        return schemas.GetArticlesDetailResponse(
-            articles=articles,
-            num_articles=len(articles),
+        return schemas.GetproductsDetailResponse(
+            products=products,
+            num_products=len(products),
         ).dict()
 
 
 @shared_task
-def get_article(article_id: int):
-    """Get article from database"""
-    # Same as get_articles, but with a filter by article_id in the query
+def get_product(product_id: int):
+    """Get product from database"""
+    # Same as get_products, but with a filter by product_id in the query
     with Session() as session:
-        query = queries.get_article_query(session, article_id)
+        query = queries.get_product_query(session, product_id)
 
-        if not (db_article := query.first()):
-            raise ValueError(f"Article with ID {article_id} not found.")
+        if not (db_product := query.first()):
+            raise ValueError(f"product with ID {product_id} not found.")
 
-        return schemas.ArticleDetailResponse(
-            id_article=db_article.id_article,
-            description=db_article.description,
-            shipping_label=db_article.shipping_label,
-            purchase_price=db_article.purchase_price,
-            shipping_group=db_article.shipping_group_name,
-            status=db_article.status_name,
-            location_name=db_article.location_name,
-            purchase_price_mxn=db_article.purchase_price_mxn,
-            profit=db_article.profit,
-            sale_price=db_article.sale_price,
+        return schemas.productDetailResponse(
+            id_product=db_product.id_product,
+            description=db_product.description,
+            shipping_label=db_product.shipping_label,
+            purchase_price=db_product.purchase_price,
+            shipping_group=db_product.shipping_group_name,
+            status=db_product.status_name,
+            location_name=db_product.location_name,
+            purchase_price_mxn=db_product.purchase_price_mxn,
+            profit=db_product.profit,
+            sale_price=db_product.sale_price,
         ).dict()
 
 
 @shared_task
-def get_article_by_shipping_group_and_label(
+def get_product_by_shipping_group_and_label(
     shipping_group_name: str,
     shipping_label: str,
 ):
-    """Get article by shipping group and label"""
+    """Get product by shipping group and label"""
     with Session() as session:
         db_shipping_group = get_shipping_group_by_name(
             session=session,
             shipping_group_name=shipping_group_name,
         )
-        query = queries.get_article_query(
+        query = queries.get_product_query(
             session=session,
             id_shipping_group=db_shipping_group.id_shipping_group,
             shipping_label=shipping_label,
         )
-        if not (db_article := query.first()):
+        if not (db_product := query.first()):
             raise ValueError(
-                f"Article with shipping label '{shipping_label}' not found " +
+                f"product with shipping label '{shipping_label}' not found " +
                 f"in the shipping group '{shipping_group_name}'.")
-        return schemas.ArticleDetailResponse(
-            id_article=db_article.id_article,
-            description=db_article.description,
-            shipping_label=db_article.shipping_label,
-            purchase_price=db_article.purchase_price,
-            shipping_group=db_article.shipping_group_name,
-            status=db_article.status_name,
-            location_name=db_article.location_name,
-            purchase_price_mxn=db_article.purchase_price_mxn,
-            profit=db_article.profit,
-            sale_price=db_article.sale_price,
+        return schemas.productDetailResponse(
+            id_product=db_product.id_product,
+            description=db_product.description,
+            shipping_label=db_product.shipping_label,
+            purchase_price=db_product.purchase_price,
+            shipping_group=db_product.shipping_group_name,
+            status=db_product.status_name,
+            location_name=db_product.location_name,
+            purchase_price_mxn=db_product.purchase_price_mxn,
+            profit=db_product.profit,
+            sale_price=db_product.sale_price,
         ).dict()
 
 
 @shared_task
-def add_article(
+def add_product(
     description: str,
     shipping_label: str,
     purchase_price: float,
-    article_location: str,
-    article_status: str,
+    product_location: str,
+    product_status: str,
     shipping_group_name: str | None = None,
 ):
-    """Add article to database"""
+    """Add product to database"""
     with Session() as session:
         # Initalizing db_shipping_group as None
         db_shipping_group = None
@@ -303,81 +303,81 @@ def add_article(
                 session=session,
                 shipping_group_name=shipping_group_name,
             )
-        db_location = queries.get_article_location_by_name(
+        db_location = queries.get_product_location_by_name(
             session=session,
-            location_name=article_location,
+            location_name=product_location,
         )
-        db_article_status = queries.get_article_status_by_name(
+        db_product_status = queries.get_product_status_by_name(
             session=session,
-            status_name=article_status,
+            status_name=product_status,
         )
-        new_article = models.Article(
+        new_product = models.product(
             description=description,
             shipping_label=shipping_label,
             purchase_price=purchase_price,
-            id_article_status=db_article_status.id_article_status,
+            id_product_status=db_product_status.id_product_status,
             id_location=db_location.id_location,
             id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_name else None,
         )
-        session.add(new_article)
+        session.add(new_product)
         session.commit()
-        return new_article.id_article
+        return new_product.id_product
 
 
 @shared_task
-def update_article(
-    article_id: int,
+def update_product(
+    product_id: int,
     description: str | None = None,
     shipping_label: str | None = None,
     purchase_price: float | None = None,
     sale_price: float | None = None,
-    id_article_status: int | None = None,
+    id_product_status: int | None = None,
     id_location: int | None = None,
     id_shipping_group: int | None = None,
 ):
-    """Update article by article_id"""
+    """Update product by product_id"""
     with Session() as session:
-        db_article = session.scalar(
-            select(models.Article)
-            .where(models.Article.id_article == article_id)
+        db_product = session.scalar(
+            select(models.product)
+            .where(models.product.id_product == product_id)
         )
-        if not db_article:
-            raise ValueError(f"Article with ID {article_id} not found.")
+        if not db_product:
+            raise ValueError(f"product with ID {product_id} not found.")
         # Only update the fields that are not None in the request.
-        # If all fields are None, the article will not be updated. This is
+        # If all fields are None, the product will not be updated. This is
         # should trigger a validation error in the API.
         item_modifications = 0
         if description is not None:
-            db_article.description = description
+            db_product.description = description
             item_modifications += 1
         if shipping_label is not None:
-            db_article.shipping_label = shipping_label
+            db_product.shipping_label = shipping_label
             item_modifications += 1
         if purchase_price is not None:
-            db_article.purchase_price = purchase_price
+            db_product.purchase_price = purchase_price
             item_modifications += 1
         if sale_price is not None:
-            db_article.sale_price = sale_price
+            db_product.sale_price = sale_price
             item_modifications += 1
-        if id_article_status is not None:
-            db_article.id_article_status = id_article_status
+        if id_product_status is not None:
+            db_product.id_product_status = id_product_status
             item_modifications += 1
         if id_location is not None:
-            db_article.id_location = id_location
+            db_product.id_location = id_location
             item_modifications += 1
         if id_shipping_group is not None:
-            db_article.id_shipping_group = id_shipping_group
+            db_product.id_shipping_group = id_shipping_group
             item_modifications += 1
         if item_modifications == 0:
             raise ValueError("No fields to update.")
         session.commit()
-        return schemas.UpdateArticleResponse(
-            id=article_id, updated_items=item_modifications
+        return schemas.UpdateproductResponse(
+            id=product_id, updated_items=item_modifications
         ).dict()
 
 
 @shared_task
-def update_article_by_shipping_group_and_label(
+def update_product_by_shipping_group_and_label(
     shipping_group_name: str,
     shipping_label: str,
     description: str | None = None,
@@ -386,67 +386,67 @@ def update_article_by_shipping_group_and_label(
     location: str | None = None,
     status: str | None = None,
 ):
-    """Update article by shipping group and label"""
+    """Update product by shipping group and label"""
     with Session() as session:
         db_shipping_group = get_shipping_group_by_name(
             session=session,
             shipping_group_name=shipping_group_name,
         )
-        db_article = session.scalar(
-            select(models.Article)
+        db_product = session.scalar(
+            select(models.product)
             .where(
-                models.Article.shipping_label == shipping_label,
-                models.Article.id_shipping_group == db_shipping_group.id_shipping_group
+                models.product.shipping_label == shipping_label,
+                models.product.id_shipping_group == db_shipping_group.id_shipping_group
             )
         )
         # Only update the fields that are not None in the request.
-        # If all fields are None, the article will not be updated. This is
+        # If all fields are None, the product will not be updated. This is
         # should trigger a validation error in the API.
         item_modifications = 0
         if description is not None:
-            db_article.description = description
+            db_product.description = description
             item_modifications += 1
         if purchase_price is not None:
-            db_article.purchase_price = purchase_price
+            db_product.purchase_price = purchase_price
             item_modifications += 1
         if sale_price is not None:
-            db_article.sale_price = sale_price
+            db_product.sale_price = sale_price
             item_modifications += 1
         if location is not None:
-            db_location = queries.get_article_location_by_name(
+            db_location = queries.get_product_location_by_name(
                 session=session,
                 location_name=location,
             )
-            db_article.id_location = db_location.id_location
+            db_product.id_location = db_location.id_location
             item_modifications += 1
         if status is not None:
-            db_status = queries.get_article_status_by_name(
+            db_status = queries.get_product_status_by_name(
                 session=session,
                 status_name=status,
             )
-            db_article.id_article_status = db_status.id_article_status
+            db_product.id_product_status = db_status.id_product_status
             item_modifications += 1
         if item_modifications == 0:
             raise ValueError("No fields to update.")
         session.commit()
-        return schemas.UpdateArticleResponse(
-            id=db_article.id_article, updated_items=item_modifications
+        return schemas.UpdateproductResponse(
+            id=db_product.id_product, updated_items=item_modifications
         ).dict()
 
 
 @shared_task
-def delete_article(article_id: int):
-    """Delete article by article_id"""
+def delete_product(product_id: int):
+    """Delete product by product_id"""
     with Session() as session:
-        db_article = session.scalar(
-            select(models.Article)
-            .where(models.Article.id_article == article_id)
+        db_product = session.scalar(
+            select(models.product)
+            .where(models.product.id_product == product_id)
         )
-        if not db_article:
-            raise ValueError(f"Article with ID {article_id} not found.")
-        session.delete(db_article)
+        if not db_product:
+            raise ValueError(f"product with ID {product_id} not found.")
+        session.delete(db_product)
         session.commit()
-        return article_id
+        return product_id
 
 
 @shared_task
@@ -464,17 +464,17 @@ def add_sale_price(
             shipping_group_name=shipping_group_name,
         )
 
-        db_article = session.scalar(
-            select(models.Article)
+        db_product = session.scalar(
+            select(models.product)
             .where(
-                models.Article.shipping_label == shipping_label,
-                models.Article.id_shipping_group == db_shipping_group.id_shipping_group
+                models.product.shipping_label == shipping_label,
+                models.product.id_shipping_group == db_shipping_group.id_shipping_group
             )
         )
-        if not db_article:
+        if not db_product:
             raise ValueError(
-                f"Article with shipping label '{shipping_label}' not found " +
+                f"product with shipping label '{shipping_label}' not found " +
                 "in the shipping group '{shipping_group_name}'.")
-        db_article.sale_price = sale_price
+        db_product.sale_price = sale_price
         session.commit()
-        return db_article.id_article
+        return db_product.id_product

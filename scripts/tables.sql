@@ -2,7 +2,7 @@ create database bagsiuesei;
 use bagsiuesei;
 SHOW TABLES;
 
-CREATE TABLE article_availability (
+CREATE TABLE product_availability (
     id_availability INT AUTO_INCREMENT PRIMARY KEY,
     availability_status VARCHAR(50) NOT NULL
 );
@@ -47,26 +47,26 @@ CREATE TABLE locations (
     location_name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE articles (
-    id_article INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE products (
+    id_product INT AUTO_INCREMENT PRIMARY KEY,
     description VARCHAR(255) NOT NULL,
     shipping_label VARCHAR(255),
     purchase_price DECIMAL(10, 2) NOT NULL,
     purchase_price_mxn DECIMAL(10, 2) NOT NULL,
     selling_price DECIMAL(10, 2) NOT NULL,
-    article_availability_id INT NOT NULL,
+    product_availability_id INT NOT NULL,
     current_location_id INT NOT NULL,
     seller_id INT NOT NULL,
     shipping_group_id INT NOT NULL,
-    FOREIGN KEY (article_availability_id) REFERENCES article_availability(id_availability),
+    FOREIGN KEY (product_availability_id) REFERENCES product_availability(id_availability),
     FOREIGN KEY (seller_id) REFERENCES sellers(id_seller),
     FOREIGN KEY (shipping_group_id) REFERENCES shipping_groups(id_shipping_group),
     FOREIGN KEY (current_location_id) REFERENCES locations(id_location)
 );
 
 
--- article availabilities
-INSERT INTO article_availability (availability_status) 
+-- product availabilities
+INSERT INTO product_availability (availability_status) 
 VALUES 
 ('available'),
 ('not available'),
@@ -102,24 +102,24 @@ INSERT INTO locations (location_name)
 VALUES
 ("casa de oriana");
 
-CREATE TABLE articles (
-    id_article INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE products (
+    id_product INT AUTO_INCREMENT PRIMARY KEY,
     description VARCHAR(255) NOT NULL,
     shipping_label VARCHAR(255),
     purchase_price DECIMAL(10, 2) NOT NULL,
     purchase_price_mxn DECIMAL(10, 2) NOT NULL,
     selling_price DECIMAL(10, 2) NOT NULL,
-    article_availability_id INT NOT NULL,
+    product_availability_id INT NOT NULL,
     current_location_id INT NOT NULL,
     seller_id INT NOT NULL,
     shipping_group_id INT NOT NULL,
-    FOREIGN KEY (article_availability_id) REFERENCES article_availability(id_availability),
+    FOREIGN KEY (product_availability_id) REFERENCES product_availability(id_availability),
     FOREIGN KEY (seller_id) REFERENCES sellers(id_seller),
     FOREIGN KEY (shipping_group_id) REFERENCES shipping_groups(id_shipping_group),
     FOREIGN KEY (current_location_id) REFERENCES locations(id_location)
 );
 
-INSERT INTO articles (description, shipping_label, purchase_price, purchase_price_mxn, selling_price, article_availability_id, current_location_id, seller_id, shipping_group_id)
+INSERT INTO products (description, shipping_label, purchase_price, purchase_price_mxn, selling_price, product_availability_id, current_location_id, seller_id, shipping_group_id)
 VALUES
 ("Bolsa1", "Valeria", 40.00, 691.20, 1200.00, 2, 1, 1, 1),
 ("Bolsa2", "Gabriela", 40.00, 691.20, 1200.00, 2, 1, 1, 1),
