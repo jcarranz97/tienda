@@ -3,6 +3,7 @@
 import asyncio
 from typing import Annotated
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import WebSocket
 from fastapi import Depends
 from fastapi.responses import JSONResponse
@@ -15,7 +16,23 @@ from articles.router import router as articles_router
 from auth import get_current_username
 
 
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
 app.include_router(sellers_router, prefix="/sellers", tags=["sellers"])
 app.include_router(shippers_router, prefix="/shippers", tags=["shippers"])
 app.include_router(shipping_router, prefix="/shipping", tags=["shipping"])
