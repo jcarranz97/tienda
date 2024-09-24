@@ -4,17 +4,17 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class ArticleStatusBase(BaseModel):
-    """Article availability base schema"""
+class ProductStatusBase(BaseModel):
+    """product availability base schema"""
     id: int
     name: str
     created_at: datetime
     updated_at: datetime
 
 
-class GetArticlesStatusesResponse(BaseModel):
-    """Get articles statuses response schema"""
-    statuses: list[ArticleStatusBase]
+class GetproductsStatusesResponse(BaseModel):
+    """Get products statuses response schema"""
+    statuses: list[ProductStatusBase]
 
 
 class LocationBase(BaseModel):
@@ -30,23 +30,23 @@ class GetLocationsResponse(BaseModel):
     locations: list[LocationBase]
 
 
-class ArticleBase(BaseModel):
-    """Article base schema"""
+class ProductBase(BaseModel):
+    """product base schema"""
     id: int
     description: str
     shipping_label: str
     purchase_price: float | None
     sale_price: float | None
-    id_article_status: int
+    id_product_status: int
     id_location: int
     id_shipping_group: int | None
     created_at: datetime
     updated_at: datetime
 
 
-class ArticleDetailResponse(BaseModel):
-    """Article detail response schema"""
-    id_article: int
+class ProductDetailResponse(BaseModel):
+    """product detail response schema"""
+    id_product: int
     description: str
     shipping_label: str
     purchase_price: float | None
@@ -58,18 +58,18 @@ class ArticleDetailResponse(BaseModel):
     profit: float | None
 
 
-class GetArticlesResponse(BaseModel):
-    """Get articles response schema"""
-    articles: list[ArticleBase]
+class GetProductsResponse(BaseModel):
+    """Get products response schema"""
+    products: list[ProductBase]
 
 
-class GetArticlesDetailResponse(BaseModel):
-    """Get articles detail response schema"""
-    articles: list[ArticleDetailResponse]
-    num_articles: int
+class GetProductsDetailResponse(BaseModel):
+    """Get products detail response schema"""
+    products: list[ProductDetailResponse]
+    num_products: int
 
 
-class UpdateArticleResponse(BaseModel):
-    """Update article response schema"""
+class UpdateproductResponse(BaseModel):
+    """Update product response schema"""
     id: int
     updated_items: int

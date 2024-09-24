@@ -9,15 +9,15 @@ from sqlalchemy.orm import relationship
 from models import Base
 
 
-class ArticleStatus(Base):
-    """ArticleStatus model"""
-    __tablename__ = 'article_statuses'
+class ProductStatus(Base):
+    """ProductStatus model"""
+    __tablename__ = 'product_statuses'
 
-    id_article_status = Column(Integer, primary_key=True, autoincrement=True)
+    id_product_status = Column(Integer, primary_key=True, autoincrement=True)
     status_name = Column(String(255), nullable=False)
 
     # Relationships
-    articles = relationship("Article", back_populates="article_status")
+    products = relationship("Product", back_populates="product_status")
 
 
 class Location(Base):
@@ -28,21 +28,21 @@ class Location(Base):
     location_name = Column(String(255), nullable=False)
 
     # Relationships
-    articles = relationship("Article", back_populates="location")
+    products = relationship("Product", back_populates="location")
 
 
-class Article(Base):
-    """Article model"""
-    __tablename__ = 'articles'
+class Product(Base):
+    """product model"""
+    __tablename__ = 'products'
 
-    id_article = Column(Integer, primary_key=True, autoincrement=True)
+    id_product = Column(Integer, primary_key=True, autoincrement=True)
     description = Column(String(255), nullable=False)
     shipping_label = Column(String(255), nullable=False)
     purchase_price = Column(Numeric(10, 2), nullable=False)
     sale_price = Column(Numeric(10, 2), nullable=False)
-    id_article_status = Column(
+    id_product_status = Column(
         Integer,
-        ForeignKey('article_statuses.id_article_status'),
+        ForeignKey('product_statuses.id_product_status'),
         nullable=False,
     )
     id_location = Column(
@@ -57,9 +57,9 @@ class Article(Base):
     )
 
     # Relationships
-    article_status = relationship(
-        "ArticleStatus",
-        back_populates="articles",
+    product_status = relationship(
+        "ProductStatus",
+        back_populates="products",
     )
-    location = relationship("Location", back_populates="articles")
-    shipping_group = relationship("ShippingGroup", back_populates="articles")
+    location = relationship("Location", back_populates="products")
+    shipping_group = relationship("ShippingGroup", back_populates="products")

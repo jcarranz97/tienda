@@ -12,7 +12,7 @@ from celery_worker import celery_app
 from sellers.router import router as sellers_router
 from shippers.router import router as shippers_router
 from shipping.router import router as shipping_router
-from articles.router import router as articles_router
+from products.router import router as products_router
 from auth import get_current_username
 
 
@@ -36,7 +36,7 @@ app.add_middleware(
 app.include_router(sellers_router, prefix="/sellers", tags=["sellers"])
 app.include_router(shippers_router, prefix="/shippers", tags=["shippers"])
 app.include_router(shipping_router, prefix="/shipping", tags=["shipping"])
-app.include_router(articles_router, prefix="/articles", tags=["articles"])
+app.include_router(products_router, prefix="/products", tags=["products"])
 
 
 # Include exception handlers
