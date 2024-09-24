@@ -17,7 +17,7 @@ class ProductStatus(Base):
     status_name = Column(String(255), nullable=False)
 
     # Relationships
-    products = relationship("product", back_populates="product_status")
+    products = relationship("Product", back_populates="product_status")
 
 
 class Location(Base):
@@ -28,10 +28,10 @@ class Location(Base):
     location_name = Column(String(255), nullable=False)
 
     # Relationships
-    products = relationship("product", back_populates="location")
+    products = relationship("Product", back_populates="location")
 
 
-class product(Base):
+class Product(Base):
     """product model"""
     __tablename__ = 'products'
 

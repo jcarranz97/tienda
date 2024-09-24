@@ -82,7 +82,7 @@ async def delete_location(location_id: int) -> int:
 @router.get("/get-products")
 async def get_products(
         shipping_group_name: str | None = None,
-        ) -> schemas.GetproductsDetailResponse:
+        ) -> schemas.GetProductsDetailResponse:
     """Get all products"""
     task = tasks.get_products.delay(
         shipping_group_name=shipping_group_name,
@@ -91,7 +91,7 @@ async def get_products(
 
 
 @router.get("/get-product/{product_id}")
-async def get_product(product_id: int) -> schemas.productDetailResponse:
+async def get_product(product_id: int) -> schemas.ProductDetailResponse:
     """Get an product"""
     task = tasks.get_product.delay(product_id)
     return task.get()
@@ -101,7 +101,7 @@ async def get_product(product_id: int) -> schemas.productDetailResponse:
 async def get_product_by_shipping_group_and_label(
     shipping_group_name: str,
     shipping_label: str,
-) -> schemas.productDetailResponse:
+) -> schemas.ProductDetailResponse:
     """Get an product by shipping group and label"""
     task = tasks.get_product_by_shipping_group_and_label.delay(
         shipping_group_name=shipping_group_name,

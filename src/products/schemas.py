@@ -30,7 +30,7 @@ class GetLocationsResponse(BaseModel):
     locations: list[LocationBase]
 
 
-class productBase(BaseModel):
+class ProductBase(BaseModel):
     """product base schema"""
     id: int
     description: str
@@ -44,7 +44,7 @@ class productBase(BaseModel):
     updated_at: datetime
 
 
-class productDetailResponse(BaseModel):
+class ProductDetailResponse(BaseModel):
     """product detail response schema"""
     id_product: int
     description: str
@@ -58,14 +58,14 @@ class productDetailResponse(BaseModel):
     profit: float | None
 
 
-class GetproductsResponse(BaseModel):
+class GetProductsResponse(BaseModel):
     """Get products response schema"""
-    products: list[productBase]
+    products: list[ProductBase]
 
 
-class GetproductsDetailResponse(BaseModel):
+class GetProductsDetailResponse(BaseModel):
     """Get products detail response schema"""
-    products: list[productDetailResponse]
+    products: list[ProductDetailResponse]
     num_products: int
 
 

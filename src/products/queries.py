@@ -19,20 +19,20 @@ def get_product_query(
     """Get product query"""
     # Create an alias for the subquery counting products per shipping group
     subquery = select(
-        models.product.id_shipping_group,
-        func.count(models.product.id_product).label('product_count')  # pylint: disable=not-callable
-    ).group_by(models.product.id_shipping_group).alias()
+        models.Product.id_shipping_group,
+        func.count(models.Product.id_product).label('product_count')  # pylint: disable=not-callable
+    ).group_by(models.Product.id_shipping_group).alias()
 
     # Create an alias to work with the subquery
-    productCount = aliased(subquery)  # pylint: disable=invalid-name
+    ProductCount = aliased(subquery)  # pylint: disable=invalid-name
     # Main query to fetch the required fields, including the "profit"
     # Main query using ORM models
     query = (
         session.query(
-            models.product.id_product,
-            models.product.description,
-            models.product.shipping_label,
-            models.product.purchase_price,
+            models.Product.id_product,
+            models.Product.description,
+            models.Product.shipping_label,
+            models.Product.purchase_price,
             ShippingGroup.shipping_group_name,
             models.ProductStatus.status_name,
             ShippingGroup.dollar_price,
@@ -41,38 +41,38 @@ def get_product_query(
             models.Location.location_name,
             # Calculate purchase_price_mxn using the helper function
             formulas.calculate_purchase_price_mxn(
-                models.product,
+                models.Product,
                 ShippingGroup,
-                productCount,
+                ProductCount,
             ),
             # Calculate profit using the helper function
             formulas.calculate_profit(
-                models.product,
+                models.Product,
                 formulas.calculate_purchase_price_mxn(
-                    models.product,
+                    models.Product,
                     ShippingGroup,
-                    productCount,
+                    ProductCount,
                 ),
             ),
-            models.product.sale_price,
+            models.Product.sale_price,
         )
-        .join(ShippingGroup, models.product.id_shipping_group == ShippingGroup.id_shipping_group)
-        .join(models.Location, models.product.id_location == models.Location.id_location)
-        .join(productCount, models.product.id_shipping_group == productCount.c.id_shipping_group)
-        .join(models.ProductStatus, models.product.id_product_status == models.ProductStatus.id_product_status)
+        .join(ShippingGroup, models.Product.id_shipping_group == ShippingGroup.id_shipping_group)
+        .join(models.Location, models.Product.id_location == models.Location.id_location)
+        .join(ProductCount, models.Product.id_shipping_group == ProductCount.c.id_shipping_group)
+        .join(models.ProductStatus, models.Product.id_product_status == models.ProductStatus.id_product_status)
     )
 
     # If product_id is provided, apply the filter
     if product_id:
-        query = query.filter(models.product.id_product == product_id)
+        query = query.filter(models.Product.id_product == product_id)
 
     # If shipping_group_name is provided, apply the filter
     if id_shipping_group:
-        query = query.filter(models.product.id_shipping_group == id_shipping_group)
+        query = query.filter(models.Product.id_shipping_group == id_shipping_group)
 
     # If shipping_label is provided, apply the filter
     if shipping_label:
-        query = query.filter(models.product.shipping_label == shipping_label)
+        query = query.filter(models.Product.shipping_label == shipping_label)
 
     return query
 

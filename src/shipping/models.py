@@ -40,4 +40,4 @@ class ShippingGroup(Base):
     # Relationships
     shipper = relationship("Shipper", back_populates="shipping_groups")
     status = relationship("ShippingStatus", back_populates="shipping_groups")
-    products = relationship("product", back_populates="shipping_group")
+    products = relationship("Product", back_populates="shipping_group")

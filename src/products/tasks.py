@@ -206,7 +206,7 @@ def get_products(shipping_group_name: str | None = None):
         )
 
         products = [
-            schemas.productDetailResponse(
+            schemas.ProductDetailResponse(
                 id_product=db_product.id_product,
                 description=db_product.description,
                 shipping_label=db_product.shipping_label,
@@ -220,7 +220,7 @@ def get_products(shipping_group_name: str | None = None):
             ).dict()
             for db_product in query.all()
         ]
-        return schemas.GetproductsDetailResponse(
+        return schemas.GetProductsDetailResponse(
             products=products,
             num_products=len(products),
         ).dict()
@@ -236,7 +236,7 @@ def get_product(product_id: int):
         if not (db_product := query.first()):
             raise ValueError(f"product with ID {product_id} not found.")
 
-        return schemas.productDetailResponse(
+        return schemas.ProductDetailResponse(
             id_product=db_product.id_product,
             description=db_product.description,
             shipping_label=db_product.shipping_label,
@@ -270,7 +270,7 @@ def get_product_by_shipping_group_and_label(
             raise ValueError(
                 f"product with shipping label '{shipping_label}' not found " +
                 f"in the shipping group '{shipping_group_name}'.")
-        return schemas.productDetailResponse(
+        return schemas.ProductDetailResponse(
             id_product=db_product.id_product,
             description=db_product.description,
             shipping_label=db_product.shipping_label,
@@ -311,7 +311,7 @@ def add_product(
             session=session,
             status_name=product_status,
         )
-        new_product = models.product(
+        new_product = models.Product(
             description=description,
             shipping_label=shipping_label,
             purchase_price=purchase_price,
@@ -338,8 +338,8 @@ def update_product(
     """Update product by product_id"""
     with Session() as session:
         db_product = session.scalar(
-            select(models.product)
-            .where(models.product.id_product == product_id)
+            select(models.Product)
+            .where(models.Product.id_product == product_id)
         )
         if not db_product:
             raise ValueError(f"product with ID {product_id} not found.")
@@ -393,10 +393,10 @@ def update_product_by_shipping_group_and_label(
             shipping_group_name=shipping_group_name,
         )
         db_product = session.scalar(
-            select(models.product)
+            select(models.Product)
             .where(
-                models.product.shipping_label == shipping_label,
-                models.product.id_shipping_group == db_shipping_group.id_shipping_group
+                models.Product.shipping_label == shipping_label,
+                models.Product.id_shipping_group == db_shipping_group.id_shipping_group
             )
         )
         # Only update the fields that are not None in the request.
@@ -439,8 +439,8 @@ def delete_product(product_id: int):
     """Delete product by product_id"""
     with Session() as session:
         db_product = session.scalar(
-            select(models.product)
-            .where(models.product.id_product == product_id)
+            select(models.Product)
+            .where(models.Product.id_product == product_id)
         )
         if not db_product:
             raise ValueError(f"product with ID {product_id} not found.")
@@ -465,10 +465,10 @@ def add_sale_price(
         )
 
         db_product = session.scalar(
-            select(models.product)
+            select(models.Product)
             .where(
-                models.product.shipping_label == shipping_label,
-                models.product.id_shipping_group == db_shipping_group.id_shipping_group
+                models.Product.shipping_label == shipping_label,
+                models.Product.id_shipping_group == db_shipping_group.id_shipping_group
             )
         )
         if not db_product:
