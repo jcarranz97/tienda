@@ -52,9 +52,6 @@ class ArticleDetailResponse(BaseModel):
     purchase_price: float | None
     shipping_group: str | None
     status: str
-    dollar_price: float | None
-    tax: float | None
-    shipping_cost: float | None
     location_name: str
     purchase_price_mxn: float | None
     sale_price: float | None
