@@ -8,8 +8,6 @@ from . import models
 from . import formulas
 
 
-
-
 def get_product_query(
         session,
         product_id=None,
