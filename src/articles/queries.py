@@ -24,7 +24,7 @@ def get_article_query(
     ).group_by(models.Article.id_shipping_group).alias()
 
     # Create an alias to work with the subquery
-    ArticleCount = aliased(subquery)
+    ArticleCount = aliased(subquery)  # pylint: disable=invalid-name
     # Main query to fetch the required fields, including the "profit"
     # Main query using ORM models
     query = (
