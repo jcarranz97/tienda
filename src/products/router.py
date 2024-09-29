@@ -79,59 +79,42 @@ async def delete_location(location_id: int) -> int:
 
 
 # product routes
-@router.get("/get-products")
+@router.get("/")
 async def get_products(
         shipping_group_name: str | None = None,
+        shipping_label: str | None = None,
         ) -> schemas.GetProductsDetailResponse:
     """Get all products"""
     task = tasks.get_products.delay(
-        shipping_group_name=shipping_group_name,
-    )
-    return task.get()
-
-
-@router.get("/get-product/{product_id}")
-async def get_product(product_id: int) -> schemas.ProductDetailResponse:
-    """Get an product"""
-    task = tasks.get_product.delay(product_id)
-    return task.get()
-
-
-@router.get("/get-product-by-shipping-group-and-label")
-async def get_product_by_shipping_group_and_label(
-    shipping_group_name: str,
-    shipping_label: str,
-) -> schemas.ProductDetailResponse:
-    """Get an product by shipping group and label"""
-    task = tasks.get_product_by_shipping_group_and_label.delay(
         shipping_group_name=shipping_group_name,
         shipping_label=shipping_label,
     )
     return task.get()
 
 
-@router.get("/add-product")
-async def add_product(
-    description: str,
-    shipping_label: str,
-    purchase_price: float,
-    product_location: str,
-    product_status: str,
-    shipping_group_name: str | None = None,
-) -> int:
+@router.get("/{product_id}")
+async def get_product_by_id(product_id: int) -> schemas.ProductDetailResponse:
+    """Get an product"""
+    task = tasks.get_product.delay(product_id)
+    return task.get()
+
+
+# This method is to perform an add-product but taking the params from the body
+@router.post("/")
+async def add_product(product: schemas.AddProductInput) -> int:
     """Add an product"""
-    task = tasks.add_product.delay(
-        description,
-        shipping_label,
-        purchase_price,
-        product_location=product_location,
-        product_status=product_status,
-        shipping_group_name=shipping_group_name,
+    task = tasks.add_product_with_ids.delay(
+        description=product.description,
+        shipping_label=product.shipping_label,
+        purchase_price=product.purchase_price,
+        product_location_id=product.product_location_id,
+        product_status_id=product.product_status_id,
+        shipping_group_id=product.shipping_group_id,
     )
     return task.get()
 
 
-@router.put("/update-product/{product_id}")
+@router.put("/{product_id}")
 async def update_product(
     product_id: int,
     description: str | None = None,
@@ -156,30 +139,7 @@ async def update_product(
     return task.get()
 
 
-@router.put("/update-product-by-shipping-group-and-label")
-async def update_product_by_shipping_group_and_label(
-    shipping_group_name: str,
-    shipping_label: str,
-    description: str | None = None,
-    purchase_price: float | None = None,
-    sale_price: float | None = None,
-    location: str | None = None,
-    status: str | None = None,
-) -> schemas.UpdateproductResponse:
-    """Update an product by shipping group and label"""
-    task = tasks.update_product_by_shipping_group_and_label.delay(
-        shipping_group_name=shipping_group_name,
-        shipping_label=shipping_label,
-        description=description,
-        purchase_price=purchase_price,
-        sale_price=sale_price,
-        location=location,
-        status=status,
-    )
-    return task.get()
-
-
-@router.delete("/delete-product/{product_id}")
+@router.delete("/{product_id}")
 async def delete_product(product_id: int) -> int:
     """Delete an product"""
     task = tasks.delete_product.delay(product_id)

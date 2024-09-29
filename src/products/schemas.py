@@ -73,3 +73,19 @@ class UpdateproductResponse(BaseModel):
     """Update product response schema"""
     id: int
     updated_items: int
+
+
+class AddProductInput(BaseModel):
+    """Add product input schema"""
+    shipping_label: str
+    description: str
+    purchase_price: float
+    product_location_id: int
+    product_status_id: int
+    shipping_group_id: int | None
+
+
+class GetProductsInput(BaseModel):
+    """Get products input schema"""
+    shipping_group_name: str | None
+    shipping_label: str | None

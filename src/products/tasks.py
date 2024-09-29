@@ -4,6 +4,7 @@ from celery import shared_task
 from sqlalchemy import select
 from database import Session
 from shipping.queries import get_shipping_group_by_name
+from shipping.queries import get_shipping_group_by_id
 from . import models
 from . import schemas
 from . import queries
@@ -187,7 +188,10 @@ def delete_location(location_id: int):
 
 
 @shared_task
-def get_products(shipping_group_name: str | None = None):
+def get_products(
+        shipping_group_name: str | None = None,
+        shipping_label: str | None = None,
+        ):
     """Get products from database"""
     with Session() as session:
         # Before fetching the products, we need to confirm that
@@ -203,6 +207,7 @@ def get_products(shipping_group_name: str | None = None):
         query = queries.get_product_query(
             session=session,
             id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_name else None,
+            shipping_label=shipping_label,
         )
 
         products = [
@@ -251,73 +256,38 @@ def get_product(product_id: int):
 
 
 @shared_task
-def get_product_by_shipping_group_and_label(
-    shipping_group_name: str,
-    shipping_label: str,
-):
-    """Get product by shipping group and label"""
-    with Session() as session:
-        db_shipping_group = get_shipping_group_by_name(
-            session=session,
-            shipping_group_name=shipping_group_name,
-        )
-        query = queries.get_product_query(
-            session=session,
-            id_shipping_group=db_shipping_group.id_shipping_group,
-            shipping_label=shipping_label,
-        )
-        if not (db_product := query.first()):
-            raise ValueError(
-                f"product with shipping label '{shipping_label}' not found " +
-                f"in the shipping group '{shipping_group_name}'.")
-        return schemas.ProductDetailResponse(
-            id_product=db_product.id_product,
-            description=db_product.description,
-            shipping_label=db_product.shipping_label,
-            purchase_price=db_product.purchase_price,
-            shipping_group=db_product.shipping_group_name,
-            status=db_product.status_name,
-            location_name=db_product.location_name,
-            purchase_price_mxn=db_product.purchase_price_mxn,
-            profit=db_product.profit,
-            sale_price=db_product.sale_price,
-        ).dict()
-
-
-@shared_task
-def add_product(
+def add_product_with_ids(
     description: str,
     shipping_label: str,
     purchase_price: float,
-    product_location: str,
-    product_status: str,
-    shipping_group_name: str | None = None,
+    product_location_id: int,
+    product_status_id: int,
+    shipping_group_id: int | None = None,
 ):
-    """Add product to database"""
+    """Add product to database by using IDs"""
     with Session() as session:
         # Initalizing db_shipping_group as None
+        product_location = queries.get_product_location_by_id(
+            session=session,
+            location_id=product_location_id,
+        )
+        product_status = queries.get_product_status_by_id(
+            session=session,
+            status_id=product_status_id,
+        )
         db_shipping_group = None
-
-        if shipping_group_name:
-            db_shipping_group = get_shipping_group_by_name(
+        if shipping_group_id:
+            db_shipping_group = get_shipping_group_by_id(
                 session=session,
-                shipping_group_name=shipping_group_name,
+                shipping_group_id=shipping_group_id,
             )
-        db_location = queries.get_product_location_by_name(
-            session=session,
-            location_name=product_location,
-        )
-        db_product_status = queries.get_product_status_by_name(
-            session=session,
-            status_name=product_status,
-        )
         new_product = models.Product(
             description=description,
             shipping_label=shipping_label,
             purchase_price=purchase_price,
-            id_product_status=db_product_status.id_product_status,
-            id_location=db_location.id_location,
-            id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_name else None,
+            id_product_status=product_status.id_product_status,
+            id_location=product_location.id_location,
+            id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_id else None,
         )
         session.add(new_product)
         session.commit()
@@ -373,64 +343,6 @@ def update_product(
         session.commit()
         return schemas.UpdateproductResponse(
             id=product_id, updated_items=item_modifications
-        ).dict()
-
-
-@shared_task
-def update_product_by_shipping_group_and_label(
-    shipping_group_name: str,
-    shipping_label: str,
-    description: str | None = None,
-    purchase_price: float | None = None,
-    sale_price: float | None = None,
-    location: str | None = None,
-    status: str | None = None,
-):
-    """Update product by shipping group and label"""
-    with Session() as session:
-        db_shipping_group = get_shipping_group_by_name(
-            session=session,
-            shipping_group_name=shipping_group_name,
-        )
-        db_product = session.scalar(
-            select(models.Product)
-            .where(
-                models.Product.shipping_label == shipping_label,
-                models.Product.id_shipping_group == db_shipping_group.id_shipping_group
-            )
-        )
-        # Only update the fields that are not None in the request.
-        # If all fields are None, the product will not be updated. This is
-        # should trigger a validation error in the API.
-        item_modifications = 0
-        if description is not None:
-            db_product.description = description
-            item_modifications += 1
-        if purchase_price is not None:
-            db_product.purchase_price = purchase_price
-            item_modifications += 1
-        if sale_price is not None:
-            db_product.sale_price = sale_price
-            item_modifications += 1
-        if location is not None:
-            db_location = queries.get_product_location_by_name(
-                session=session,
-                location_name=location,
-            )
-            db_product.id_location = db_location.id_location
-            item_modifications += 1
-        if status is not None:
-            db_status = queries.get_product_status_by_name(
-                session=session,
-                status_name=status,
-            )
-            db_product.id_product_status = db_status.id_product_status
-            item_modifications += 1
-        if item_modifications == 0:
-            raise ValueError("No fields to update.")
-        session.commit()
-        return schemas.UpdateproductResponse(
-            id=db_product.id_product, updated_items=item_modifications
         ).dict()
 
 

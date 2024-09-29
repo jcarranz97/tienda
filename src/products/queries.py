@@ -97,3 +97,27 @@ def get_product_location_by_name(session, location_name):
         raise ValueError(
             f"Location '{location_name}' not found.")
     return db_location
+
+
+def get_product_location_by_id(session, location_id):
+    """Get product location by id"""
+    db_location = session.scalar(
+        select(models.Location)
+        .where(models.Location.id_location == location_id)
+    )
+    if not db_location:
+        raise ValueError(
+            f"Location id '{location_id}' is not valid.")
+    return db_location
+
+
+def get_product_status_by_id(session, status_id):
+    """Get product status by id"""
+    db_status = session.scalar(
+        select(models.ProductStatus)
+        .where(models.ProductStatus.id_product_status == status_id)
+    )
+    if not db_status:
+        raise ValueError(
+            f"Status id '{status_id}' is not valid.")
+    return db_status

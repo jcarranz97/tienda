@@ -14,3 +14,15 @@ def get_shipping_group_by_name(session, shipping_group_name):
         raise ValueError(
             f"Shipping group '{shipping_group_name}' not found.")
     return db_shipping_group
+
+
+def get_shipping_group_by_id(session, shipping_group_id):
+    """Get shipping group by id"""
+    db_shipping_group = session.scalar(
+        select(models.ShippingGroup)
+        .where(models.ShippingGroup.id_shipping_group == shipping_group_id)
+    )
+    if not db_shipping_group:
+        raise ValueError(
+            f"Shipping group id '{shipping_group_id}' is not valid.")
+    return db_shipping_group
