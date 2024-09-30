@@ -66,8 +66,35 @@ def get_product_query(
                         models.Product.purchase_price,
                     ),
                 ),
+                formulas.calculate_mx_iva(16, models.Product.sale_price),
             ),
             models.Product.sale_price,
+            formulas.calculate_mx_iva(16, models.Product.sale_price),
+            formulas.calculate_profit_percentage(
+                models.Product,
+                formulas.calculate_purchase_price_mxn(
+                    models.Product,
+                    ShippingGroup,
+                    formulas.calculate_shipping_cost(
+                        ShippingGroup,
+                        subquery.c.total_price,
+                        models.Product.purchase_price,
+                    ),
+                ),
+                formulas.calculate_profit(
+                    models.Product,
+                    formulas.calculate_purchase_price_mxn(
+                        models.Product,
+                        ShippingGroup,
+                        formulas.calculate_shipping_cost(
+                            ShippingGroup,
+                            subquery.c.total_price,
+                            models.Product.purchase_price,
+                        ),
+                    ),
+                    formulas.calculate_mx_iva(16, models.Product.sale_price),
+                ),
+            ),
         )
         .join(ShippingGroup, models.Product.id_shipping_group == ShippingGroup.id_shipping_group)
         .join(models.Location, models.Product.id_location == models.Location.id_location)

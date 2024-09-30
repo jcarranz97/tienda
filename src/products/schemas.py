@@ -54,9 +54,11 @@ class ProductDetailResponse(BaseModel):
     status: str
     location_name: str
     purchase_price_mxn: float | None
+    mx_iva: float | None
     sale_price: float | None
     shipping_cost: float | None
     profit: float | None
+    profit_percentage: float | None
 
 
 class GetProductsResponse(BaseModel):
