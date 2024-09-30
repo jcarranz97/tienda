@@ -4,14 +4,26 @@ from sqlalchemy.sql.expression import case
 from sqlalchemy.sql import func
 
 
-def calculate_purchase_price_mxn(product, shipping_group, product_count_subquery):
+def calculate_shipping_cost_mxn(shipping_group, total_price, purchase_price):
+    """
+    Calculate the shipping cost in MXN (shipping_cost_mxn).
+    """
+    return (
+        func.round(
+            (shipping_group.shipping_cost / func.coalesce(total_price, 1)) * purchase_price * shipping_group.dollar_price,
+            2  # Round to 2 decimal places
+        )
+    ).label('shipping_cost_mxn')
+
+
+def calculate_purchase_price_mxn(product, shipping_group, shipping_cost_mxn):
     """
     Calculate the purchase price in MXN (purchase_price_mxn).
     """
     return (
         func.round(
             product.purchase_price * shipping_group.dollar_price * (1 + (shipping_group.tax * 0.01)) +
-            (shipping_group.shipping_cost / product_count_subquery.c.product_count) * shipping_group.dollar_price,
+            shipping_cost_mxn,
             2  # Round to 2 decimal places
         )
     ).label('purchase_price_mxn')

@@ -221,6 +221,7 @@ def get_products(
                 location_name=db_product.location_name,
                 purchase_price_mxn=db_product.purchase_price_mxn,
                 sale_price=db_product.sale_price,
+                shipping_cost_mxn=db_product.shipping_cost_mxn,
                 profit=db_product.profit,
             ).dict()
             for db_product in query.all()
@@ -265,6 +266,8 @@ def add_product_with_ids(
     shipping_group_id: int | None = None,
 ):
     """Add product to database by using IDs"""
+    # Put shipping_label in lowercase
+    shipping_label = shipping_label.lower()
     with Session() as session:
         # Initalizing db_shipping_group as None
         product_location = queries.get_product_location_by_id(

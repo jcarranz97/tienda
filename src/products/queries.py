@@ -18,13 +18,11 @@ def get_product_query(
     # Create an alias for the subquery counting products per shipping group
     subquery = select(
         models.Product.id_shipping_group,
-        func.count(models.Product.id_product).label('product_count')  # pylint: disable=not-callable
-    ).group_by(models.Product.id_shipping_group).alias()
+        func.count(models.Product.id_product).label('product_count'),  # pylint: disable=not-callable
+        func.sum(models.Product.purchase_price).label('total_price')   # Sum the purchase price
+    ).group_by(models.Product.id_shipping_group).subquery()  # Here, we use .subquery() to create an explicit subquery
 
-    # Create an alias to work with the subquery
-    ProductCount = aliased(subquery)  # pylint: disable=invalid-name
     # Main query to fetch the required fields, including the "profit"
-    # Main query using ORM models
     query = (
         session.query(
             models.Product.id_product,
@@ -37,11 +35,24 @@ def get_product_query(
             ShippingGroup.tax,
             ShippingGroup.shipping_cost,
             models.Location.location_name,
+            # Use subquery columns directly
+            subquery.c.product_count,
+            subquery.c.total_price,
+            # Calculate shipping_cost_mxn using the helper function
+            formulas.calculate_shipping_cost_mxn(
+                ShippingGroup,
+                subquery.c.total_price,
+                models.Product.purchase_price,
+            ),
             # Calculate purchase_price_mxn using the helper function
             formulas.calculate_purchase_price_mxn(
                 models.Product,
                 ShippingGroup,
-                ProductCount,
+                formulas.calculate_shipping_cost_mxn(
+                    ShippingGroup,
+                    subquery.c.total_price,
+                    models.Product.purchase_price,
+                ),
             ),
             # Calculate profit using the helper function
             formulas.calculate_profit(
@@ -49,14 +60,19 @@ def get_product_query(
                 formulas.calculate_purchase_price_mxn(
                     models.Product,
                     ShippingGroup,
-                    ProductCount,
+                    formulas.calculate_shipping_cost_mxn(
+                        ShippingGroup,
+                        subquery.c.total_price,
+                        models.Product.purchase_price,
+                    ),
                 ),
             ),
             models.Product.sale_price,
         )
         .join(ShippingGroup, models.Product.id_shipping_group == ShippingGroup.id_shipping_group)
         .join(models.Location, models.Product.id_location == models.Location.id_location)
-        .join(ProductCount, models.Product.id_shipping_group == ProductCount.c.id_shipping_group)
+        # Use the subquery directly in the join, referencing the appropriate column
+        .outerjoin(subquery, models.Product.id_shipping_group == subquery.c.id_shipping_group)
         .join(models.ProductStatus, models.Product.id_product_status == models.ProductStatus.id_product_status)
     )
 
