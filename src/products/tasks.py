@@ -221,7 +221,7 @@ def get_products(
                 location_name=db_product.location_name,
                 purchase_price_mxn=db_product.purchase_price_mxn,
                 sale_price=db_product.sale_price,
-                shipping_cost_mxn=db_product.shipping_cost_mxn,
+                shipping_cost=db_product.shipping_cost,
                 profit=db_product.profit,
             ).dict()
             for db_product in query.all()
@@ -253,6 +253,7 @@ def get_product(product_id: int):
             purchase_price_mxn=db_product.purchase_price_mxn,
             profit=db_product.profit,
             sale_price=db_product.sale_price,
+            shipping_cost=db_product.shipping_cost,
         ).dict()
 
 

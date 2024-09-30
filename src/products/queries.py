@@ -38,8 +38,8 @@ def get_product_query(
             # Use subquery columns directly
             subquery.c.product_count,
             subquery.c.total_price,
-            # Calculate shipping_cost_mxn using the helper function
-            formulas.calculate_shipping_cost_mxn(
+            # Calculate shipping_cost using the helper function
+            formulas.calculate_shipping_cost(
                 ShippingGroup,
                 subquery.c.total_price,
                 models.Product.purchase_price,
@@ -48,7 +48,7 @@ def get_product_query(
             formulas.calculate_purchase_price_mxn(
                 models.Product,
                 ShippingGroup,
-                formulas.calculate_shipping_cost_mxn(
+                formulas.calculate_shipping_cost(
                     ShippingGroup,
                     subquery.c.total_price,
                     models.Product.purchase_price,
@@ -60,7 +60,7 @@ def get_product_query(
                 formulas.calculate_purchase_price_mxn(
                     models.Product,
                     ShippingGroup,
-                    formulas.calculate_shipping_cost_mxn(
+                    formulas.calculate_shipping_cost(
                         ShippingGroup,
                         subquery.c.total_price,
                         models.Product.purchase_price,

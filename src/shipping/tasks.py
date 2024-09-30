@@ -123,6 +123,7 @@ def get_shipping_groups():
                 created_at=db_group.ShippingGroup.created_at,
                 updated_at=db_group.ShippingGroup.updated_at,
                 num_products=db_group.num_products,
+                total_purchase_price=db_group.total_purchase_price,
                 notes=db_group.ShippingGroup.notes,
             ).dict()
             for db_group in db_groups
@@ -160,6 +161,7 @@ def get_shipping_group(group_id: int):
             created_at=db_group.ShippingGroup.created_at,
             updated_at=db_group.ShippingGroup.updated_at,
             num_products=db_group.num_products,
+            total_purchase_price=db_group.total_purchase_price,
             notes=db_group.ShippingGroup.notes,
         )
 

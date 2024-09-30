@@ -30,6 +30,7 @@ class ShippingGroupBase(BaseModel):
     created_at: datetime
     updated_at: datetime
     num_products: int
+    total_purchase_price: float
     notes: str | None
 
 

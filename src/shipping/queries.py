@@ -35,17 +35,19 @@ def get_shipping_group_query(session, shipping_group_id=None):
     subquery = (
         session.query(
             Product.id_shipping_group,
-            func.count(Product.id_product).label('num_products')  # pylint: disable=not-callable
+            func.count(Product.id_product).label('num_products'),  # Count the number of products  # pylint: disable=no-callable
+            func.sum(Product.purchase_price).label('total_purchase_price')  # Sum the purchase prices
         )
         .group_by(Product.id_shipping_group)
         .subquery()
     )
 
-    # Create the base query to join ShippingGroup with the subquery to get the product count
+    # Create the base query to join ShippingGroup with the subquery to get product count and total purchase price
     query = (
         session.query(
             models.ShippingGroup,
-            func.coalesce(subquery.c.num_products, 0).label('num_products')
+            func.coalesce(subquery.c.num_products, 0).label('num_products'),
+            func.coalesce(subquery.c.total_purchase_price, 0).label('total_purchase_price')
         )
         .outerjoin(subquery, models.ShippingGroup.id_shipping_group == subquery.c.id_shipping_group)
     )
