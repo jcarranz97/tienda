@@ -4,8 +4,11 @@ from celery import shared_task
 from sqlalchemy import select
 from database import Session
 from shippers.models import Shipper
+from products.models import Product
+from sqlalchemy import func
 from . import models
 from . import schemas
+from . import queries
 
 
 @shared_task
@@ -102,49 +105,65 @@ def delete_shipping_status(status_id: int):
 
 @shared_task
 def get_shipping_groups():
-    """Get shipping groups from database"""
+    """Get shipping groups from the database with the number of products in each group"""
     with Session() as session:
-        db_groups = session.scalars(select(models.ShippingGroup)).all()
+        # Use the reusable query to get all shipping groups
+        db_groups = queries.get_shipping_group_query(session).all()
+
+        # Construct the response for all groups
         groups = [
             schemas.ShippingGroupBase(
-                id=db_group.id_shipping_group,
-                name=db_group.shipping_group_name,
-                id_shipper=db_group.id_shipper,
-                id_status=db_group.id_status,
-                shipping_cost=db_group.shipping_cost,
-                dollar_price=db_group.dollar_price,
-                tax=db_group.tax,
-                created_at=db_group.created_at,
-                updated_at=db_group.updated_at,
-                notes=db_group.notes,
+                id=db_group.ShippingGroup.id_shipping_group,
+                name=db_group.ShippingGroup.shipping_group_name,
+                shipper=db_group.ShippingGroup.shipper.shipper_name,
+                status=db_group.ShippingGroup.status.status_name,
+                shipping_cost=db_group.ShippingGroup.shipping_cost,
+                dollar_price=db_group.ShippingGroup.dollar_price,
+                tax=db_group.ShippingGroup.tax,
+                created_at=db_group.ShippingGroup.created_at,
+                updated_at=db_group.ShippingGroup.updated_at,
+                num_products=db_group.num_products,
+                notes=db_group.ShippingGroup.notes,
             ).dict()
             for db_group in db_groups
         ]
-        return schemas.GetShippingGroupsResponse(groups=groups).dict()
+
+        return schemas.GetShippingGroupsResponse(
+            groups=groups,
+            num_groups=len(groups),
+        ).dict()
 
 
 @shared_task
 def get_shipping_group(group_id: int):
     """Get shipping group from database"""
     with Session() as session:
-        db_group = session.scalar(
-            select(models.ShippingGroup)
-            .where(models.ShippingGroup.id_shipping_group == group_id)
+        # Use the reusable query to get a specific shipping group
+        db_group = queries.get_shipping_group_query(
+            session,
+            shipping_group_id=group_id
+        ).first()
+
+        # If no group found, return None or handle as appropriate
+        if db_group is None:
+            return None
+
+        # Construct the response for the found shipping group
+        group = schemas.ShippingGroupBase(
+            id=db_group.ShippingGroup.id_shipping_group,
+            name=db_group.ShippingGroup.shipping_group_name,
+            shipper=db_group.ShippingGroup.shipper.shipper_name,
+            status=db_group.ShippingGroup.status.status_name,
+            shipping_cost=db_group.ShippingGroup.shipping_cost,
+            dollar_price=db_group.ShippingGroup.dollar_price,
+            tax=db_group.ShippingGroup.tax,
+            created_at=db_group.ShippingGroup.created_at,
+            updated_at=db_group.ShippingGroup.updated_at,
+            num_products=db_group.num_products,
+            notes=db_group.ShippingGroup.notes,
         )
-        if not db_group:
-            raise ValueError(f"Shipping group with ID {group_id} not found.")
-        return schemas.ShippingGroupBase(
-            id=db_group.id_shipping_group,
-            name=db_group.shipping_group_name,
-            id_shipper=db_group.id_shipper,
-            id_status=db_group.id_status,
-            shipping_cost=db_group.shipping_cost,
-            dollar_price=db_group.dollar_price,
-            tax=db_group.tax,
-            created_at=db_group.created_at,
-            updated_at=db_group.updated_at,
-            notes=db_group.notes,
-        ).dict()
+
+        return group.dict()
 
 
 @shared_task
