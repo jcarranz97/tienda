@@ -13,6 +13,7 @@ from sellers.router import router as sellers_router
 from shippers.router import router as shippers_router
 from shipping.router import router as shipping_router
 from products.router import router as products_router
+from invoices.router import router as invoices_router
 from auth import get_current_username
 
 
@@ -37,6 +38,7 @@ app.include_router(sellers_router, prefix="/sellers", tags=["sellers"])
 app.include_router(shippers_router, prefix="/shippers", tags=["shippers"])
 app.include_router(shipping_router, prefix="/shipping", tags=["shipping"])
 app.include_router(products_router, prefix="/products", tags=["products"])
+app.include_router(invoices_router, prefix="/invoices", tags=["invoices"])
 
 
 # Include exception handlers

@@ -11,6 +11,7 @@ celery_app = Celery(
         "shippers.tasks",
         "shipping.tasks",
         "products.tasks",
+        "invoices.tasks",
     ],
 )
 
@@ -19,4 +20,5 @@ celery_app.conf.task_routes = {
     "shippers.tasks.*": {"queue": "base"},
     "shipping.tasks.*": {"queue": "base"},
     "products.tasks.*": {"queue": "base"},
+    "invoices.tasks.*": {"queue": "base"},
 }
