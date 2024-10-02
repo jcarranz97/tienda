@@ -137,3 +137,31 @@ def get_invoice_payments(
             payments=payments,
             num_payments=len(payments),
         ).dict()
+
+
+@shared_task
+def get_invoice_products(
+        invoice_id: int,
+):
+    """Get invoice products task"""
+    # Create a session
+    with Session() as session:
+        # Get the invoice products
+        query = queries.get_invoices_products_query(
+            session, invoice_id
+        )
+
+        # Get invoice products
+        products = [
+            schemas.InvoiceProductDetails(
+                id=db_product.id_product,
+                shipping_label=db_product.shipping_label,
+                description=db_product.description,
+                sale_price=db_product.sale_price,
+            ).dict()
+            for db_product in query.all()
+        ]
+        return schemas.GetInvoiceProductsResponse(
+            products=products,
+            num_products=len(products),
+        ).dict()

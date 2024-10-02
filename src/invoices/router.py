@@ -68,3 +68,12 @@ async def add_invoice_payment(
     """Add invoice payment"""
     task = tasks.add_invoice_payment.delay(invoice_id, request.amount)
     return task.get()
+
+
+@router.get("/{invoice_id}/products")
+async def get_invoice_products(
+        invoice_id: int
+) -> schemas.GetInvoiceProductsResponse:
+    """Get invoice products"""
+    task = tasks.get_invoice_products.delay(invoice_id)
+    return task.get()

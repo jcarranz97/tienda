@@ -45,3 +45,17 @@ class GetInvoicePaymentsResponse(BaseModel):
 class AddInvoicePaymentRequest(BaseModel):
     """Add invoice payment request schema"""
     amount: float
+
+
+class InvoiceProductDetails(BaseModel):
+    """Invoice product details schema"""
+    id: int
+    shipping_label: str
+    description: str
+    sale_price: float
+
+
+class GetInvoiceProductsResponse(BaseModel):
+    """Get invoice products response schema"""
+    products: list[InvoiceProductDetails]
+    num_products: int

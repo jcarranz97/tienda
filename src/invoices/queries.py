@@ -70,3 +70,26 @@ def get_invoices_payments_query(
         query = query.filter(models.InvoicePayment.id_invoice == invoice_id)
 
     return query
+
+
+def get_invoices_products_query(
+        session,
+        invoice_id=None,
+):
+    """Get invoice products query"""
+    # This query fetches the products related to the invoice and returns
+    # the id, name, and sale price of the product
+    query = (
+        session.query(
+            Product.id_product,
+            Product.description,
+            Product.shipping_label,
+            Product.sale_price,
+        )
+        .join(models.InvoiceDetail, Product.id_product == models.InvoiceDetail.id_product)
+    )
+
+    if invoice_id:
+        query = query.filter(models.InvoiceDetail.id_invoice == invoice_id)
+
+    return query
