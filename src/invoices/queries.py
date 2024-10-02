@@ -16,7 +16,7 @@ def get_invoices_query(session, invoice_id=None):
     payment_subquery = (
         session.query(
             models.InvoicePayment.id_invoice,
-            func.count(models.InvoicePayment.id_invoice_payment).label('num_of_payments'),  # pylint: disable=not-callable,line-too-long # noqa E501
+            func.count(models.InvoicePayment.id_invoice_payment).label('num_payments'),  # pylint: disable=not-callable,line-too-long # noqa E501
             func.coalesce(func.sum(models.InvoicePayment.amount), 0).label('total_paid')
         )
         .group_by(models.InvoicePayment.id_invoice)
@@ -30,8 +30,8 @@ def get_invoices_query(session, invoice_id=None):
             models.Invoice.notes,
             Seller.seller_name,
             func.coalesce(func.sum(Product.sale_price), 0).label('total_amount'),
-            func.count(Product.id_product).label('num_of_products'),  # pylint: disable=not-callable
-            func.coalesce(payment_subquery.c.num_of_payments, 0).label('num_of_payments'),
+            func.count(Product.id_product).label('num_products'),  # pylint: disable=not-callable
+            func.coalesce(payment_subquery.c.num_payments, 0).label('num_payments'),
             func.coalesce(payment_subquery.c.total_paid, 0).label('total_paid'),
         )
         .join(models.InvoiceDetail, models.Invoice.id_invoice == models.InvoiceDetail.id_invoice)

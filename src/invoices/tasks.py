@@ -22,15 +22,15 @@ def get_invoices():
                 notes=db_invoice.notes,
                 seller_name=db_invoice.seller_name,
                 total_amount=db_invoice.total_amount,
-                num_of_products=db_invoice.num_of_products,
-                num_of_payments=db_invoice.num_of_payments,
+                num_products=db_invoice.num_products,
+                num_payments=db_invoice.num_payments,
                 total_paid=db_invoice.total_paid,
             ).dict()
             for db_invoice in query.all()
         ]
         return schemas.GetInvoicesDetailsResponse(
             invoices=invoices,
-            num_of_invoices=len(invoices),
+            num_invoices=len(invoices),
         ).dict()
 
 
@@ -49,8 +49,8 @@ def get_invoice(
             notes=db_invoice.notes,
             seller_name=db_invoice.seller_name,
             total_amount=db_invoice.total_amount,
-            num_of_products=db_invoice.num_of_products,
-            num_of_payments=db_invoice.num_of_payments,
+            num_products=db_invoice.num_products,
+            num_payments=db_invoice.num_payments,
             total_paid=db_invoice.total_paid,
         ).dict()
 
@@ -135,5 +135,5 @@ def get_invoice_payments(
         ]
         return schemas.GetInvoicePaymentsResponse(
             payments=payments,
-            num_of_payments=len(payments),
+            num_payments=len(payments),
         ).dict()

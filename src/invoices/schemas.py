@@ -10,15 +10,15 @@ class InvoiceDetails(BaseModel):
     notes: str
     seller_name: str
     total_amount: float
-    num_of_products: int
-    num_of_payments: int
+    num_products: int
+    num_payments: int
     total_paid: float
 
 
 class GetInvoicesDetailsResponse(BaseModel):
     """Get sellers response schema"""
     invoices: list[InvoiceDetails]
-    num_of_invoices: int
+    num_invoices: int
 
 
 class CreateInvoiceRequest(BaseModel):
@@ -39,7 +39,7 @@ class InvoicePaymentDetails(BaseModel):
 class GetInvoicePaymentsResponse(BaseModel):
     """Get invoice payments response schema"""
     payments: list[InvoicePaymentDetails]
-    num_of_payments: int
+    num_payments: int
 
 
 class AddInvoicePaymentRequest(BaseModel):
