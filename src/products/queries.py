@@ -2,8 +2,8 @@
 """This module defines common queries for product management."""
 from sqlalchemy import select
 from sqlalchemy import func
-from sqlalchemy.orm import aliased
 from shipping.models import ShippingGroup
+from invoices.models import InvoiceDetail
 from . import models
 from . import formulas
 
@@ -44,7 +44,7 @@ def get_product_query(
                 subquery.c.total_price,
                 models.Product.purchase_price,
             ),
-            # Calculate purchase_price_mxn using the helper function
+            InvoiceDetail.id_invoice,  # Fetching the id_invoice from InvoiceDetail
             formulas.calculate_purchase_price_mxn(
                 models.Product,
                 ShippingGroup,
@@ -101,6 +101,10 @@ def get_product_query(
         # Use the subquery directly in the join, referencing the appropriate column
         .outerjoin(subquery, models.Product.id_shipping_group == subquery.c.id_shipping_group)
         .join(models.ProductStatus, models.Product.id_product_status == models.ProductStatus.id_product_status)
+        .outerjoin(  # Outer join to fetch the id_invoice from InvoiceDetail
+            InvoiceDetail,
+            models.Product.id_product == InvoiceDetail.id_product,
+        )
     )
 
     # If product_id is provided, apply the filter
