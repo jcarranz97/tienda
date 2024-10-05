@@ -93,3 +93,8 @@ class GetProductsInput(BaseModel):
     """Get products input schema"""
     shipping_group_name: str | None
     shipping_label: str | None
+
+
+class AddSalePriceInput(BaseModel):
+    """Add sale price schema"""
+    sale_price: float

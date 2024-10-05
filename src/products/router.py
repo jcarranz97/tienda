@@ -146,16 +146,14 @@ async def delete_product(product_id: int) -> int:
     return task.get()
 
 
-@router.post("/add-sale-price")
-async def add_sale_price(
-        shipping_group_name: str,
-        shipping_label: str,
-        sale_price: float,
-) -> int:
+@router.post("/{product_id}/add-sale-price")
+async def add_sale_price_with_id_w(
+        product_id: int,
+        body: schemas.AddSalePriceInput,
+        ) -> schemas.ProductDetailResponse:
     """Add a sale price"""
-    task = tasks.add_sale_price.delay(
-        shipping_group_name=shipping_group_name,
-        shipping_label=shipping_label,
-        sale_price=sale_price,
+    task = tasks.add_sale_price_with_id_2.delay(
+        id_product=product_id,
+        sale_price=body.sale_price,
     )
     return task.get()

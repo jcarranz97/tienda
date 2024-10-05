@@ -400,3 +400,57 @@ def add_sale_price(
         db_product.sale_price = sale_price
         session.commit()
         return db_product.id_product
+
+
+@shared_task
+def add_sale_price_with_id(
+        id_product: int,
+        sale_price: float,
+) -> int:
+    """Add sale price to database by product_id"""
+    with Session() as session:
+        db_product = session.scalar(
+            select(models.Product)
+            .where(models.Product.id_product == id_product)
+        )
+        if not db_product:
+            raise ValueError(f"product with ID {id_product} not found.")
+        db_product.sale_price = sale_price
+        session.commit()
+        return db_product.id_product
+
+
+@shared_task
+def add_sale_price_with_id_2(
+        id_product: int,
+        sale_price: float,
+        ) -> schemas.ProductDetailResponse:
+    """Add sale price to database by product_id"""
+    with Session() as session:
+        db_product = session.scalar(
+            select(models.Product)
+            .where(models.Product.id_product == id_product)
+        )
+        if not db_product:
+            raise ValueError(f"product with ID {id_product} not found.")
+        db_product.sale_price = sale_price
+        session.commit()
+        # Return the product using the query get_function_query
+        query = queries.get_product_query(session, id_product)
+        db_product = query.first()
+        return schemas.ProductDetailResponse(
+            id_product=db_product.id_product,
+            description=db_product.description,
+            shipping_label=db_product.shipping_label,
+            purchase_price=db_product.purchase_price,
+            shipping_group=db_product.shipping_group_name,
+            status=db_product.status_name,
+            location_name=db_product.location_name,
+            purchase_price_mxn=db_product.purchase_price_mxn,
+            invoice_id=db_product.id_invoice,
+            mx_iva=db_product.mx_iva,
+            profit=db_product.profit,
+            profit_percentage=db_product.profit_percentage,
+            sale_price=db_product.sale_price,
+            shipping_cost=db_product.shipping_cost,
+        ).dict()
