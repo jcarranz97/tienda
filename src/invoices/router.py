@@ -64,9 +64,14 @@ async def get_invoice_payments(
 async def add_invoice_payment(
         invoice_id: int,
         request: schemas.AddInvoicePaymentRequest
-) -> int:
+        ) -> schemas.InvoicePaymentDetails:
     """Add invoice payment"""
-    task = tasks.add_invoice_payment.delay(invoice_id, request.amount)
+    task = tasks.add_invoice_payment.delay(
+        id_invoice=invoice_id,
+        amount=request.amount,
+        payment_date=request.payment_date,
+        payment_comment=request.payment_comment,
+    )
     return task.get()
 
 

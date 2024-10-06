@@ -99,7 +99,7 @@ def add_invoice_payment(
         amount: float,
         payment_date: str,
         payment_comment: str,
-):
+        ) -> schemas.InvoicePaymentDetails:
     """Add payment to invoice task"""
     # Create a session
     with Session() as session:
@@ -112,8 +112,13 @@ def add_invoice_payment(
         )
         session.add(invoice_payment)
         session.commit()
-        # Return the invoice payment
-        return invoice_payment.id_invoice_payment
+        # Return the invoice payment details from the query
+        return schemas.InvoicePaymentDetails(
+            id=invoice_payment.id_invoice_payment,
+            amount=invoice_payment.amount,
+            payment_date=invoice_payment.payment_date,
+            payment_comment=invoice_payment.payment_comment,
+        ).dict()
 
 
 @shared_task

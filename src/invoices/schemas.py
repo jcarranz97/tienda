@@ -46,6 +46,8 @@ class GetInvoicePaymentsResponse(BaseModel):
 class AddInvoicePaymentRequest(BaseModel):
     """Add invoice payment request schema"""
     amount: float
+    payment_date: date
+    payment_comment: str | None
 
 
 class InvoiceProductDetails(BaseModel):
