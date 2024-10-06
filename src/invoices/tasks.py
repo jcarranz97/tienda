@@ -97,6 +97,8 @@ def add_invoice_product(
 def add_invoice_payment(
         id_invoice: int,
         amount: float,
+        payment_date: str,
+        payment_comment: str,
 ):
     """Add payment to invoice task"""
     # Create a session
@@ -105,6 +107,8 @@ def add_invoice_payment(
         invoice_payment = models.InvoicePayment(
             id_invoice=id_invoice,
             amount=amount,
+            payment_date=payment_date,
+            payment_comment=payment_comment,
         )
         session.add(invoice_payment)
         session.commit()
@@ -129,7 +133,8 @@ def get_invoice_payments(
             schemas.InvoicePaymentDetails(
                 id=db_payment.id_invoice_payment,
                 amount=db_payment.amount,
-                payment_date=db_payment.created_at,
+                payment_date=db_payment.payment_date,
+                payment_comment=db_payment.payment_comment,
             ).dict()
             for db_payment in query.all()
         ]

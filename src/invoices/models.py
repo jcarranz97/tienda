@@ -6,6 +6,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import Text
 from sqlalchemy.orm import relationship
 from sqlalchemy import Numeric
+from sqlalchemy import Date
 from models import Base
 
 
@@ -41,6 +42,8 @@ class InvoicePayment(Base):
     id_invoice_payment = Column(Integer, primary_key=True, autoincrement=True)
     id_invoice = Column(Integer, ForeignKey('invoices.id_invoice'), nullable=False)
     amount = Column(Numeric(10, 2), nullable=False)
+    payment_date = Column(Date, nullable=False)
+    payment_comment = Column(Text, nullable=True)
 
     # Relationship
     invoice = relationship("Invoice")

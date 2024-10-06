@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """Seller schemas"""
-from datetime import datetime
+from datetime import date
 from pydantic import BaseModel
 
 
@@ -33,7 +33,8 @@ class InvoicePaymentDetails(BaseModel):
     """Invoice payment details schema"""
     id: int
     amount: float
-    payment_date: datetime
+    payment_date: date
+    payment_comment: str | None
 
 
 class GetInvoicePaymentsResponse(BaseModel):

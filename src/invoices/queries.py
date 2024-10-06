@@ -62,7 +62,8 @@ def get_invoices_payments_query(
         session.query(
             models.InvoicePayment.id_invoice_payment,
             models.InvoicePayment.amount,
-            models.InvoicePayment.created_at,
+            models.InvoicePayment.payment_date,
+            models.InvoicePayment.payment_comment,
         )
     )
 
