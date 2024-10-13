@@ -35,7 +35,8 @@ def get_shipping_group_query(session, shipping_group_id=None):
     subquery = (
         session.query(
             Product.id_shipping_group,
-            func.count(Product.id_product).label('num_products'),  # Count the number of products  # pylint: disable=no-callable
+            # Count the number of products # pylint: disable=not-callable
+            func.count(Product.id_product).label('num_products'),
             func.sum(Product.purchase_price).label('total_purchase_price')  # Sum the purchase prices
         )
         .group_by(Product.id_shipping_group)

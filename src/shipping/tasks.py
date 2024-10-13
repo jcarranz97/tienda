@@ -4,8 +4,6 @@ from celery import shared_task
 from sqlalchemy import select
 from database import Session
 from shippers.models import Shipper
-from products.models import Product
-from sqlalchemy import func
 from . import models
 from . import schemas
 from . import queries

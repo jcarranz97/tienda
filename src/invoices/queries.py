@@ -23,18 +23,25 @@ def get_invoices_query(session, invoice_id=None):
         .subquery()
     )
 
+    # Calculate the total amount (sum of product sale prices)
+    total_amount = func.coalesce(func.sum(Product.sale_price), 0).label('total_amount')
+
+    # Calculate the remaining balance
+    total_paid = func.coalesce(payment_subquery.c.total_paid, 0).label('total_paid')
+    remaining_balance = (total_amount - total_paid).label('remaining_balance')
+
     # Main query fetching invoice details
     query = (
         session.query(
             models.Invoice.id_invoice,
             models.Invoice.notes,
             Seller.seller_name,
-            func.coalesce(func.sum(Product.sale_price), 0).label('total_amount'),
+            total_amount,
             func.count(Product.id_product).label('num_products'),  # pylint: disable=not-callable
             func.coalesce(payment_subquery.c.num_payments, 0).label('num_payments'),
-            func.coalesce(payment_subquery.c.total_paid, 0).label('total_paid'),
+            total_paid,
             # Calculate the remaining amount by subtracting the total paid from the total amount
-            (func.coalesce(func.sum(Product.sale_price), 0) - func.coalesce(payment_subquery.c.total_paid, 0)).label('remaining_balance')
+            remaining_balance,
         )
         .join(models.InvoiceDetail, models.Invoice.id_invoice == models.InvoiceDetail.id_invoice)
         .join(Product, models.InvoiceDetail.id_product == Product.id_product)
