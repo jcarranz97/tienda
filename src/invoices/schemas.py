@@ -27,6 +27,8 @@ class CreateInvoiceRequest(BaseModel):
     notes: str
     products: list[int] | None
     payment: float | None
+    payment_date: date | None
+    payment_comment: str | None
 
 
 class InvoicePaymentDetails(BaseModel):

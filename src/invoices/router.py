@@ -29,6 +29,10 @@ async def create_invoice(request: schemas.CreateInvoiceRequest) -> int:
     contains a list of products, it adds them to the invoice. If the request
     contains a payment, it adds it to the invoice.
     """
+    # Validate the request
+    if request.payment and not request.payment_date:
+        raise ValueError("Payment date is required if payment is provided")
+
     task = tasks.create_invoice.delay(
         request.id_seller,
         request.notes,
@@ -44,7 +48,12 @@ async def create_invoice(request: schemas.CreateInvoiceRequest) -> int:
 
     # Add payment to the invoice if it is provided
     if request.payment:
-        task = tasks.add_invoice_payment.delay(invoice_id, request.payment)
+        task = tasks.add_invoice_payment.delay(
+            id_invoice=invoice_id,
+            amount=request.payment,
+            payment_date=request.payment_date,
+            payment_comment=request.payment_comment,
+        )
     # Wait for the last task to finish
     task.get()
 
