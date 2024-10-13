@@ -54,8 +54,12 @@ class ProductDetailResponse(BaseModel):
     status: str
     location_name: str
     purchase_price_mxn: float | None
+    invoice_id: int | None
+    mx_iva: float | None
     sale_price: float | None
+    shipping_cost: float | None
     profit: float | None
+    profit_percentage: float | None
 
 
 class GetProductsResponse(BaseModel):
@@ -73,3 +77,24 @@ class UpdateproductResponse(BaseModel):
     """Update product response schema"""
     id: int
     updated_items: int
+
+
+class AddProductInput(BaseModel):
+    """Add product input schema"""
+    shipping_label: str
+    description: str
+    purchase_price: float
+    product_location_id: int
+    product_status_id: int
+    shipping_group_id: int | None
+
+
+class GetProductsInput(BaseModel):
+    """Get products input schema"""
+    shipping_group_name: str | None
+    shipping_label: str | None
+
+
+class AddSalePriceInput(BaseModel):
+    """Add sale price schema"""
+    sale_price: float
