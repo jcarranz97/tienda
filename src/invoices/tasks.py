@@ -26,6 +26,7 @@ def get_invoices():
                 num_payments=db_invoice.num_payments,
                 total_paid=db_invoice.total_paid,
                 remaining_balance=db_invoice.remaining_balance,
+                invoice_status=db_invoice.invoice_status,
             ).dict()
             for db_invoice in query.all()
         ]
@@ -54,6 +55,7 @@ def get_invoice(
             num_payments=db_invoice.num_payments,
             total_paid=db_invoice.total_paid,
             remaining_balance=db_invoice.remaining_balance,
+            invoice_status=db_invoice.invoice_status,
         ).dict()
 
 

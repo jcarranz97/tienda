@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """This module defines common queries for invoice management."""
 from sqlalchemy import func
+from sqlalchemy import case
 from products.models import Product
 from sellers.models import Seller
 from . import models
@@ -30,6 +31,13 @@ def get_invoices_query(session, invoice_id=None):
     total_paid = func.coalesce(payment_subquery.c.total_paid, 0).label('total_paid')
     remaining_balance = (total_amount - total_paid).label('remaining_balance')
 
+    # Add the invoice status: "pending" if total_paid < total_amount, otherwise "paid"
+    invoice_status = case(
+        (total_paid < total_amount, 'pending'),    # When total_paid is less than total_amount
+        (total_paid > total_amount, 'overpaid'),   # When total_paid is greater than total_amount
+        else_='paid'
+    ).label('invoice_status')
+
     # Main query fetching invoice details
     query = (
         session.query(
@@ -42,6 +50,7 @@ def get_invoices_query(session, invoice_id=None):
             total_paid,
             # Calculate the remaining amount by subtracting the total paid from the total amount
             remaining_balance,
+            invoice_status,
         )
         .join(models.InvoiceDetail, models.Invoice.id_invoice == models.InvoiceDetail.id_invoice)
         .join(Product, models.InvoiceDetail.id_product == Product.id_product)
