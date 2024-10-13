@@ -3,6 +3,8 @@
 import asyncio
 from typing import Annotated
 from fastapi import FastAPI
+import os
+from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import WebSocket
 from fastapi import Depends
@@ -17,10 +19,17 @@ from invoices.router import router as invoices_router
 from auth import get_current_username
 
 
+load_dotenv()
+
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://localhost:3001",
 ]
+# The web application URL and port is define in the environment variable, so
+# we need to get it and include it in the origins list.
+origins.append(os.getenv("WEB_APP_URL"))
+
 
 app = FastAPI()
 

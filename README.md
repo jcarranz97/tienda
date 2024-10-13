@@ -8,4 +8,5 @@ DB_USER=root
 DB_PORT=
 DB_PASS=
 DB_NAME=
+WEB_APP_URL=
 ```
