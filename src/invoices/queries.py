@@ -33,6 +33,8 @@ def get_invoices_query(session, invoice_id=None):
             func.count(Product.id_product).label('num_products'),  # pylint: disable=not-callable
             func.coalesce(payment_subquery.c.num_payments, 0).label('num_payments'),
             func.coalesce(payment_subquery.c.total_paid, 0).label('total_paid'),
+            # Calculate the remaining amount by subtracting the total paid from the total amount
+            (func.coalesce(func.sum(Product.sale_price), 0) - func.coalesce(payment_subquery.c.total_paid, 0)).label('remaining_balance')
         )
         .join(models.InvoiceDetail, models.Invoice.id_invoice == models.InvoiceDetail.id_invoice)
         .join(Product, models.InvoiceDetail.id_product == Product.id_product)

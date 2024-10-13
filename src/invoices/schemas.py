@@ -13,6 +13,7 @@ class InvoiceDetails(BaseModel):
     num_products: int
     num_payments: int
     total_paid: float
+    remaining_balance: float
 
 
 class GetInvoicesDetailsResponse(BaseModel):
