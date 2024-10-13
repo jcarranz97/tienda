@@ -3,7 +3,6 @@
 from sqlalchemy import select
 from sqlalchemy import func
 from sqlalchemy import case
-from sqlalchemy.orm import aliased
 from shipping.models import ShippingGroup
 from invoices.models import InvoiceDetail
 from invoices.queries import get_invoices_query
