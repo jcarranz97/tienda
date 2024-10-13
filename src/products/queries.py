@@ -2,8 +2,10 @@
 """This module defines common queries for product management."""
 from sqlalchemy import select
 from sqlalchemy import func
+from sqlalchemy import case
 from shipping.models import ShippingGroup
 from invoices.models import InvoiceDetail
+from invoices.queries import get_invoices_query
 from . import models
 from . import formulas
 
@@ -15,6 +17,9 @@ def get_product_query(
         shipping_label=None,
         ):
     """Get product query"""
+    # Create an alias for the invoice subquery
+    invoice_subquery = get_invoices_query(session).subquery()
+
     # Create an alias for the subquery counting products per shipping group
     subquery = select(
         models.Product.id_shipping_group,
@@ -22,6 +27,13 @@ def get_product_query(
         func.sum(models.Product.purchase_price).label('total_price')   # Sum the purchase price
     ).group_by(models.Product.id_shipping_group).subquery()  # Here, we use .subquery() to create an explicit subquery
 
+    # Define the product_status logic using a case statement
+    product_status = case(
+        (invoice_subquery.c.invoice_status == 'paid', 'not available'),
+        (invoice_subquery.c.invoice_status == 'overpaid', 'not available'),
+        (invoice_subquery.c.invoice_status == 'pending', 'reserved'),
+        else_='available'  # Default case when invoice_status is NULL or not defined
+    ).label('product_status')
     # Main query to fetch the required fields, including the "profit"
     query = (
         session.query(
@@ -30,7 +42,6 @@ def get_product_query(
             models.Product.shipping_label,
             models.Product.purchase_price,
             ShippingGroup.shipping_group_name,
-            models.ProductStatus.status_name,
             ShippingGroup.dollar_price,
             ShippingGroup.tax,
             ShippingGroup.shipping_cost,
@@ -38,6 +49,8 @@ def get_product_query(
             # Use subquery columns directly
             subquery.c.product_count,
             subquery.c.total_price,
+            invoice_subquery.c.invoice_status,
+            product_status,  # Add the product_status column
             # Calculate shipping_cost using the helper function
             formulas.calculate_shipping_cost(
                 ShippingGroup,
@@ -100,10 +113,13 @@ def get_product_query(
         .join(models.Location, models.Product.id_location == models.Location.id_location)
         # Use the subquery directly in the join, referencing the appropriate column
         .outerjoin(subquery, models.Product.id_shipping_group == subquery.c.id_shipping_group)
-        .join(models.ProductStatus, models.Product.id_product_status == models.ProductStatus.id_product_status)
         .outerjoin(  # Outer join to fetch the id_invoice from InvoiceDetail
             InvoiceDetail,
             models.Product.id_product == InvoiceDetail.id_product,
+        )
+        .outerjoin(  # Outer join to fetch the invoice_status from the invoice_alias
+            invoice_subquery,
+            InvoiceDetail.id_invoice == invoice_subquery.c.id_invoice,
         )
     )
 

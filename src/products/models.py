@@ -16,9 +16,6 @@ class ProductStatus(Base):
     id_product_status = Column(Integer, primary_key=True, autoincrement=True)
     status_name = Column(String(255), nullable=False)
 
-    # Relationships
-    products = relationship("Product", back_populates="product_status")
-
 
 class Location(Base):
     """Location model"""
@@ -40,11 +37,6 @@ class Product(Base):
     shipping_label = Column(String(255), nullable=False)
     purchase_price = Column(Numeric(10, 2), nullable=False)
     sale_price = Column(Numeric(10, 2), nullable=False)
-    id_product_status = Column(
-        Integer,
-        ForeignKey('product_statuses.id_product_status'),
-        nullable=False,
-    )
     id_location = Column(
         Integer,
         ForeignKey('locations.id_location'),
@@ -57,9 +49,5 @@ class Product(Base):
     )
 
     # Relationships
-    product_status = relationship(
-        "ProductStatus",
-        back_populates="products",
-    )
     location = relationship("Location", back_populates="products")
     shipping_group = relationship("ShippingGroup", back_populates="products")
