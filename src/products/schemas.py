@@ -55,6 +55,7 @@ class ProductDetailResponse(BaseModel):
     location_name: str
     purchase_price_mxn: float | None
     invoice_id: int | None
+    invoice_status: str | None
     mx_iva: float | None
     sale_price: float | None
     shipping_cost: float | None
