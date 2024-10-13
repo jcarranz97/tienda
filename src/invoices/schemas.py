@@ -14,6 +14,7 @@ class InvoiceDetails(BaseModel):
     num_payments: int
     total_paid: float
     remaining_balance: float
+    invoice_status: str
 
 
 class GetInvoicesDetailsResponse(BaseModel):
