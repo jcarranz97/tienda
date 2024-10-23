@@ -86,7 +86,6 @@ class AddProductInput(BaseModel):
     description: str
     purchase_price: float
     product_location_id: int
-    product_status_id: int
     shipping_group_id: int | None
 
 

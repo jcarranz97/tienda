@@ -108,7 +108,6 @@ async def add_product(product: schemas.AddProductInput) -> int:
         shipping_label=product.shipping_label,
         purchase_price=product.purchase_price,
         product_location_id=product.product_location_id,
-        product_status_id=product.product_status_id,
         shipping_group_id=product.shipping_group_id,
     )
     return task.get()
