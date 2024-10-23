@@ -271,7 +271,6 @@ def add_product_with_ids(
     shipping_label: str,
     purchase_price: float,
     product_location_id: int,
-    product_status_id: int,
     shipping_group_id: int | None = None,
 ):
     """Add product to database by using IDs"""
@@ -283,10 +282,6 @@ def add_product_with_ids(
             session=session,
             location_id=product_location_id,
         )
-        product_status = queries.get_product_status_by_id(
-            session=session,
-            status_id=product_status_id,
-        )
         db_shipping_group = None
         if shipping_group_id:
             db_shipping_group = get_shipping_group_by_id(
@@ -297,7 +292,6 @@ def add_product_with_ids(
             description=description,
             shipping_label=shipping_label,
             purchase_price=purchase_price,
-            id_product_status=product_status.id_product_status,
             id_location=product_location.id_location,
             id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_id else None,
         )
