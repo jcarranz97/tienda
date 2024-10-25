@@ -145,7 +145,7 @@ async def update_product(
 async def update_product_size(
     product_id: int,
     product_size: schemas.AddProductSizeInput,
-    ) -> schemas.ProductDetailResponse:
+) -> schemas.ProductDetailResponse:
     """Update an product size"""
     task = tasks.update_product_size.delay(
         product_id=product_id,

@@ -382,7 +382,7 @@ def update_product_size(
     length: float | None = None,
     width: float | None = None,
     height: float | None = None,
-    ) -> schemas.ProductDetailResponse:
+) -> schemas.ProductDetailResponse:
     """Add product size to database by product_id"""
     with Session() as session:
         db_product = session.scalar(
