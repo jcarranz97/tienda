@@ -313,7 +313,7 @@ def add_product_with_ids(
 
 
 @shared_task
-def update_product(
+def update_product(  # pylint: disable=too-many-arguments
     product_id: int,
     description: str | None = None,
     shipping_label: str | None = None,
