@@ -50,6 +50,7 @@ class Product(Base):
     length = Column(Numeric(10, 2), nullable=True)
     width = Column(Numeric(10, 2), nullable=True)
     height = Column(Numeric(10, 2), nullable=True)
+    material = Column(String(45), nullable=True)
 
     # Relationships
     location = relationship("Location", back_populates="products")

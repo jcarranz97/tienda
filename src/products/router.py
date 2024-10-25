@@ -156,6 +156,19 @@ async def update_product_size(
     return task.get()
 
 
+@router.put("/{product_id}/material")
+async def update_product_material(
+    product_id: int,
+    material: schemas.UpdateProductMaterialInput,
+) -> schemas.ProductDetailResponse:
+    """Update an product material"""
+    task = tasks.update_product_material.delay(
+        product_id=product_id,
+        material=material.material,
+    )
+    return task.get()
+
+
 @router.delete("/{product_id}")
 async def delete_product(product_id: int) -> int:
     """Delete an product"""

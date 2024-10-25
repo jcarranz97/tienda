@@ -44,6 +44,7 @@ def get_product_query(
             models.Product.length,
             models.Product.width,
             models.Product.height,
+            models.Product.material,
             ShippingGroup.shipping_group_name,
             ShippingGroup.dollar_price,
             ShippingGroup.tax,

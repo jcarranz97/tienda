@@ -54,6 +54,7 @@ class ProductDetailResponse(BaseModel):
     length: float | None
     width: float | None
     height: float | None
+    material: str | None
     status: str
     location_name: str
     purchase_price_mxn: float | None
@@ -93,6 +94,7 @@ class AddProductInput(BaseModel):
     length: float | None
     width: float | None
     height: float | None
+    material: str | None
 
 
 class GetProductsInput(BaseModel):
@@ -111,3 +113,8 @@ class AddProductSizeInput(BaseModel):
     length: float
     width: float
     height: float
+
+
+class UpdateProductMaterialInput(BaseModel):
+    """Update material schema"""
+    material: str
