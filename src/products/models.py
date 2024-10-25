@@ -47,6 +47,9 @@ class Product(Base):
         ForeignKey('shipping_groups.id_shipping_group'),
         nullable=True,
     )
+    length = Column(Numeric(10, 2), nullable=True)
+    width = Column(Numeric(10, 2), nullable=True)
+    height = Column(Numeric(10, 2), nullable=True)
 
     # Relationships
     location = relationship("Location", back_populates="products")

@@ -51,6 +51,9 @@ class ProductDetailResponse(BaseModel):
     shipping_label: str
     purchase_price: float | None
     shipping_group: str | None
+    length: float | None
+    width: float | None
+    height: float | None
     status: str
     location_name: str
     purchase_price_mxn: float | None
@@ -87,6 +90,9 @@ class AddProductInput(BaseModel):
     purchase_price: float
     product_location_id: int
     shipping_group_id: int | None
+    length: float | None
+    width: float | None
+    height: float | None
 
 
 class GetProductsInput(BaseModel):
@@ -98,3 +104,10 @@ class GetProductsInput(BaseModel):
 class AddSalePriceInput(BaseModel):
     """Add sale price schema"""
     sale_price: float
+
+
+class AddProductSizeInput(BaseModel):
+    """Add product size schema"""
+    length: float
+    width: float
+    height: float

@@ -109,6 +109,9 @@ async def add_product(product: schemas.AddProductInput) -> int:
         purchase_price=product.purchase_price,
         product_location_id=product.product_location_id,
         shipping_group_id=product.shipping_group_id,
+        length=product.length,
+        width=product.width,
+        height=product.height,
     )
     return task.get()
 
@@ -134,6 +137,21 @@ async def update_product(
         id_product_status=id_product_status,
         id_location=id_location,
         id_shipping_group=id_shipping_group,
+    )
+    return task.get()
+
+
+@router.put("/{product_id}/size")
+async def update_product_size(
+    product_id: int,
+    product_size: schemas.AddProductSizeInput,
+    ) -> schemas.ProductDetailResponse:
+    """Update an product size"""
+    task = tasks.update_product_size.delay(
+        product_id=product_id,
+        length=product_size.length,
+        width=product_size.width,
+        height=product_size.height,
     )
     return task.get()
 
