@@ -217,6 +217,9 @@ def get_products(
                 shipping_label=db_product.shipping_label,
                 purchase_price=db_product.purchase_price,
                 shipping_group=db_product.shipping_group_name,
+                length=db_product.length,
+                width=db_product.width,
+                height=db_product.height,
                 status=db_product.product_status,
                 location_name=db_product.location_name,
                 purchase_price_mxn=db_product.purchase_price_mxn,
@@ -252,6 +255,9 @@ def get_product(product_id: int):
             shipping_label=db_product.shipping_label,
             purchase_price=db_product.purchase_price,
             shipping_group=db_product.shipping_group_name,
+            length=db_product.length,
+            width=db_product.width,
+            height=db_product.height,
             status=db_product.product_status,
             location_name=db_product.location_name,
             purchase_price_mxn=db_product.purchase_price_mxn,
@@ -272,6 +278,9 @@ def add_product_with_ids(
     purchase_price: float,
     product_location_id: int,
     shipping_group_id: int | None = None,
+    length: float | None = None,
+    width: float | None = None,
+    height: float | None = None,
 ):
     """Add product to database by using IDs"""
     # Put shipping_label in lowercase
@@ -294,6 +303,9 @@ def add_product_with_ids(
             purchase_price=purchase_price,
             id_location=product_location.id_location,
             id_shipping_group=db_shipping_group.id_shipping_group if shipping_group_id else None,
+            length=length,
+            width=width,
+            height=height,
         )
         session.add(new_product)
         session.commit()
@@ -301,7 +313,7 @@ def add_product_with_ids(
 
 
 @shared_task
-def update_product(
+def update_product(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     product_id: int,
     description: str | None = None,
     shipping_label: str | None = None,
@@ -310,6 +322,9 @@ def update_product(
     id_product_status: int | None = None,
     id_location: int | None = None,
     id_shipping_group: int | None = None,
+    length: float | None = None,
+    width: float | None = None,
+    height: float | None = None,
 ):
     """Update product by product_id"""
     with Session() as session:
@@ -344,11 +359,73 @@ def update_product(
         if id_shipping_group is not None:
             db_product.id_shipping_group = id_shipping_group
             item_modifications += 1
+        if length is not None:
+            db_product.length = length
+            item_modifications += 1
+        if width is not None:
+            db_product.width = width
+            item_modifications += 1
+        if height is not None:
+            db_product.height = height
+            item_modifications += 1
         if item_modifications == 0:
             raise ValueError("No fields to update.")
         session.commit()
         return schemas.UpdateproductResponse(
             id=product_id, updated_items=item_modifications
+        ).dict()
+
+
+@shared_task
+def update_product_size(
+    product_id: int,
+    length: float | None = None,
+    width: float | None = None,
+    height: float | None = None,
+) -> schemas.ProductDetailResponse:
+    """Add product size to database by product_id"""
+    with Session() as session:
+        db_product = session.scalar(
+            select(models.Product)
+            .where(models.Product.id_product == product_id)
+        )
+        if not db_product:
+            raise ValueError(f"product with ID {product_id} not found.")
+        item_modifications = 0
+        if length is not None:
+            db_product.length = length
+            item_modifications += 1
+        if width is not None:
+            db_product.width = width
+            item_modifications += 1
+        if height is not None:
+            db_product.height = height
+            item_modifications += 1
+        if item_modifications == 0:
+            raise ValueError("No fields to update.")
+        session.commit()
+        # Return the product using the query get_function_query
+        query = queries.get_product_query(session, product_id)
+        db_product = query.first()
+        return schemas.ProductDetailResponse(
+            id_product=db_product.id_product,
+            description=db_product.description,
+            shipping_label=db_product.shipping_label,
+            purchase_price=db_product.purchase_price,
+            shipping_group=db_product.shipping_group_name,
+            status=db_product.product_status,
+            length=db_product.length,
+            width=db_product.width,
+            height=db_product.height,
+            location_name=db_product.location_name,
+            purchase_price_mxn=db_product.purchase_price_mxn,
+            invoice_id=db_product.id_invoice,
+            invoice_status=db_product.invoice_status,
+            mx_iva=db_product.mx_iva,
+            profit=db_product.profit,
+            profit_percentage=db_product.profit_percentage,
+            sale_price=db_product.sale_price,
+            shipping_cost=db_product.shipping_cost,
         ).dict()
 
 
@@ -441,6 +518,9 @@ def add_sale_price_with_id_2(
             purchase_price=db_product.purchase_price,
             shipping_group=db_product.shipping_group_name,
             status=db_product.product_status,
+            length=db_product.length,
+            width=db_product.width,
+            height=db_product.height,
             location_name=db_product.location_name,
             purchase_price_mxn=db_product.purchase_price_mxn,
             invoice_id=db_product.id_invoice,
