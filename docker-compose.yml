@@ -11,7 +11,7 @@ services:
   app:
     container_name: app
     build: .
-    command: uvicorn main:app --host 0.0.0.0 --reload
+    command: uvicorn main:app --app-dir src/ --host 0.0.0.0 --reload
     volumes:
       - .:/app
       - lmdb_files:/root/lmdb_files/
@@ -21,7 +21,7 @@ services:
       - redis
   celery_worker:
     build: .
-    command: celery -A celery_worker worker -Q base --loglevel=info --concurrency 5
+    command: celery --workdir src/ -A celery_worker worker -Q base --loglevel=info --concurrency 5
     deploy:
       mode: replicated
       replicas: 1
@@ -39,7 +39,7 @@ services:
   flower:
     container_name: flower
     build: .
-    command: celery -A celery_worker flower --port=5555
+    command: celery --workdir src/ -A celery_worker flower --port=5555
     volumes:
       - .:/app
     ports:
