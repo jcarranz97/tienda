@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 """Celery worker module."""
+import os
 from celery import Celery
+
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+print("CELERY_BROKER_URL - ", CELERY_BROKER_URL)
+if not CELERY_BROKER_URL:
+    CELERY_BROKER_URL = "redis://redis:6379/0"
+    print("CELERY_BROKER_URL (local) - ", CELERY_BROKER_URL)
 
 celery_app = Celery(
     "tasks",
-    broker="redis://redis/0",
-    backend="redis://redis/0",
+    broker=CELERY_BROKER_URL,
+    backend=CELERY_BROKER_URL,
     include=[
         "sellers.tasks",
         "shippers.tasks",
