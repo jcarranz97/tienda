@@ -1,12 +1,3 @@
-envVarGroups:
-  - key: DB_HOST
-    sync: false
-  - key: DB_PORT
-    sync: false
-  - key: DB_NAME
-    sync: false
-  - key: DB_USER
-    sync: false
 services:
   - type: worker
     name: celery-worker
@@ -34,6 +25,14 @@ services:
           name: celery-redis
           type: redis
           property: connectionString
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
   - type: web
     name: flower
     region: ohio
