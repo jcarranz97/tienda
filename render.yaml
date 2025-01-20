@@ -17,7 +17,7 @@ services:
     region: ohio
     runtime: python
     buildCommand: "pip install -r src/requirements.txt"
-    startCommand: "uvicorn main:app --app-dir src/ --host 0.0.0.0"
+    startCommand: "uvicorn main:app --app-dir src/ --host 0.0.0.0 --port $PORT"
     autoDeploy: false
     envVars:
       - key: CELERY_BROKER_URL
