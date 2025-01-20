@@ -9,6 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import WebSocket
 from fastapi import Depends
 from fastapi.responses import JSONResponse
+from fastapi.security import (
+    OAuth2PasswordRequestForm,
+)
 from celery.result import AsyncResult
 from celery_worker import celery_app
 from sellers.router import router as sellers_router
@@ -16,7 +19,15 @@ from shippers.router import router as shippers_router
 from shipping.router import router as shipping_router
 from products.router import router as products_router
 from invoices.router import router as invoices_router
-from auth import get_current_username
+from auth.auth import (
+    # oauth2_scheme,
+    get_current_user,
+    auth_login,
+)
+from auth.models import (
+    User,
+    Token,
+)
 
 
 load_dotenv()
@@ -99,10 +110,15 @@ async def websocket_endpoint(websocket: WebSocket, task_id: str):
 
 
 @app.get("/users/me")
-def read_current_user(username: Annotated[str, Depends(get_current_username)]):
+def read_current_user(current_user: Annotated[User, Depends(get_current_user)]):
     """Get the current user.
 
     This method is mainly for testing the dependency injection. In this case
     the basic auth is used to get the username.
     """
-    return {"username": username}
+    return current_user
+
+
+@app.post("/token")
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
+    return auth_login(form_data)

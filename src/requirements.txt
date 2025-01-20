@@ -4,7 +4,9 @@ celery
 uvicorn
 flower
 redis
-fastapi
+fastapi[standard]
 python-dotenv
 sqlalchemy
 mysql-connector-python
+pyjwt
+passlib[bcrypt]
