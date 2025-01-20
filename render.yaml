@@ -4,7 +4,7 @@ services:
     region: ohio
     runtime: python
     buildCommand: "pip install -r src/requirements.txt"
-    startCommand: "celery --workdir src/ -A celery_worker worker -Q base --loglevel info --concurrency 4"
+    startCommand: "celery --workdir src/ -A celery_worker worker -Q base --loglevel=debug --concurrency 4"
     autoDeploy: true
     envVars:
       - key: CELERY_BROKER_URL
