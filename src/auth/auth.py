@@ -47,20 +47,24 @@ fake_users_db = {
 
 
 def verify_password(plain_password, hashed_password):
+    """Verify the password."""
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
+    """Get the password hash."""
     return pwd_context.hash(password)
 
 
 def get_user(db, username: str):
+    """Get the user from the database."""
     if username in db:
         user_dict = db[username]
         return UserInDB(**user_dict)
 
 
 def authenticate_user(fake_db, username: str, password: str):
+    """Authenticate the user."""
     user = get_user(fake_db, username)
     if not user:
         return False
@@ -70,6 +74,7 @@ def authenticate_user(fake_db, username: str, password: str):
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    """Create the access token."""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -80,15 +85,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-def fake_decode_token(token):
-    return get_user(fake_users_db, token)
-
-
-def fake_hash_password(password: str):
-    return "fakehashed" + password
-
-
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    """Validate that current user is valid."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -100,8 +98,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
-    except InvalidTokenError:
-        raise credentials_exception
+    except InvalidTokenError as invalid_token:
+        raise credentials_exception from invalid_token
     user = get_user(fake_users_db, username=token_data.username)
     if user is None:
         raise credentials_exception
@@ -111,12 +109,14 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 async def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)],
 ):
+    """Confirm that the current user is active."""
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
 def auth_login(form_data: OAuth2PasswordRequestForm):
+    """Authenticate the user and return the token."""
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(

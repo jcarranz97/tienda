@@ -4,11 +4,15 @@ from pydantic import BaseModel
 
 
 class Token(BaseModel):
+    """Model for a token."""
+
     access_token: str
     token_type: str
 
 
 class TokenData(BaseModel):
+    """Model for token data."""
+
     username: str | None = None
 
 
@@ -22,4 +26,5 @@ class User(BaseModel):
 
 
 class UserInDB(User):
+    """Model for a user in the database."""
     hashed_password: str
