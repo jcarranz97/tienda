@@ -8,10 +8,10 @@ from fastapi.security import (
     OAuth2PasswordBearer,
     OAuth2PasswordRequestForm,
 )
-import jwt
-from jwt.exceptions import InvalidTokenError
 from fastapi import HTTPException
 from fastapi import status
+import jwt
+from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from auth.models import (
     Token,
@@ -58,18 +58,19 @@ def get_password_hash(password):
 
 def get_user(db, username: str):
     """Get the user from the database."""
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
+    if username not in db:
+        return None
+    user_dict = db[username]
+    return UserInDB(**user_dict)
 
 
-def authenticate_user(fake_db, username: str, password: str):
+def authenticate_user(fake_db, username: str, password: str) -> UserInDB | None:
     """Authenticate the user."""
     user = get_user(fake_db, username)
     if not user:
-        return False
+        return None
     if not verify_password(password, user.hashed_password):
-        return False
+        return None
     return user
 
 

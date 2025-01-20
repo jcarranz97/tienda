@@ -121,4 +121,5 @@ def read_current_user(current_user: Annotated[User, Depends(get_current_user)]):
 
 @app.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
+    """Login endpoint to get the token."""
     return auth_login(form_data)
