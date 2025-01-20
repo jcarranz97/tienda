@@ -23,14 +23,10 @@ from auth.models import (
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
-print(f"SECRET_KEY: {SECRET_KEY}")
-print(f"ALGORITHM: {ALGORITHM}")
-print(f"ACCESS_TOKEN_EXPIRE_MINUTES: {ACCESS_TOKEN_EXPIRE_MINUTES}")
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
 
 fake_users_db = {
     "johndoe": {
@@ -48,8 +44,6 @@ fake_users_db = {
         "disabled": True,
     },
 }
-
-
 
 
 def verify_password(plain_password, hashed_password):
