@@ -5,12 +5,14 @@ import os
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 print("CELERY_BROKER_URL - ", CELERY_BROKER_URL)
+if not CELERY_BROKER_URL:
+    CELERY_BROKER_URL = "redis://redis:6379/0"
+    print("CELERY_BROKER_URL (local) - ", CELERY_BROKER_URL)
 
 celery_app = Celery(
     "tasks",
     broker=CELERY_BROKER_URL,
-    # backend=CELERY_BROKER_URL,
-    # backend="redis://redis/0",
+    backend=CELERY_BROKER_URL,
     include=[
         "sellers.tasks",
         "shippers.tasks",
