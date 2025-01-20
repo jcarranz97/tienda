@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Celery worker module."""
-from celery import Celery
 import os
+from celery import Celery
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 print("CELERY_BROKER_URL - ", CELERY_BROKER_URL)
