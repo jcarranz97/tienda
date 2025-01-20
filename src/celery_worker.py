@@ -9,6 +9,7 @@ print("CELERY_BROKER_URL - ", CELERY_BROKER_URL)
 celery_app = Celery(
     "tasks",
     broker=CELERY_BROKER_URL,
+    backend=CELERY_BROKER_URL,
     # backend="redis://redis/0",
     include=[
         "sellers.tasks",
