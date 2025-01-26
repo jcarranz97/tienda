@@ -1,28 +1,44 @@
 #!/usr/bin/env python
 """FastAPI router related to group1."""
 from fastapi import APIRouter
+from fastapi import Depends
+from typing import Annotated
 from . import tasks
 from . import schemas
+from auth.auth import (
+    get_current_user,
+)
+from auth.models import (
+    User,
+)
 
 router = APIRouter()
 
 
 @router.get("/")
-async def get_invoices() -> schemas.GetInvoicesDetailsResponse:
+async def get_invoices(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> schemas.GetInvoicesDetailsResponse:
     """Get invoices"""
     task = tasks.get_invoices.delay()
     return task.get()
 
 
 @router.get("/{invoice_id}")
-async def get_invoice(invoice_id: int) -> schemas.InvoiceDetails:
+async def get_invoice(
+    invoice_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> schemas.InvoiceDetails:
     """Get invoice"""
     task = tasks.get_invoice.delay(invoice_id)
     return task.get()
 
 
 @router.post("/")
-async def create_invoice(request: schemas.CreateInvoiceRequest) -> int:
+async def create_invoice(
+    request: schemas.CreateInvoiceRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> int:
     """Create invoice
 
     This endpoint creates an invoice and returns the invoice id. If the request
@@ -62,7 +78,8 @@ async def create_invoice(request: schemas.CreateInvoiceRequest) -> int:
 
 @router.get("/{invoice_id}/payments")
 async def get_invoice_payments(
-        invoice_id: int
+        invoice_id: int,
+        current_user: Annotated[User, Depends(get_current_user)],
 ) -> schemas.GetInvoicePaymentsResponse:
     """Get invoice payments"""
     task = tasks.get_invoice_payments.delay(invoice_id)
@@ -72,7 +89,8 @@ async def get_invoice_payments(
 @router.post("/{invoice_id}/payments")
 async def add_invoice_payment(
         invoice_id: int,
-        request: schemas.AddInvoicePaymentRequest
+        request: schemas.AddInvoicePaymentRequest,
+        current_user: Annotated[User, Depends(get_current_user)],
         ) -> schemas.InvoicePaymentDetails:
     """Add invoice payment"""
     task = tasks.add_invoice_payment.delay(
@@ -86,7 +104,8 @@ async def add_invoice_payment(
 
 @router.get("/{invoice_id}/products")
 async def get_invoice_products(
-        invoice_id: int
+        invoice_id: int,
+        current_user: Annotated[User, Depends(get_current_user)],
 ) -> schemas.GetInvoiceProductsResponse:
     """Get invoice products"""
     task = tasks.get_invoice_products.delay(invoice_id)

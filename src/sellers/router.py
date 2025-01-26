@@ -2,8 +2,16 @@
 """FastAPI router related to group1."""
 from fastapi import APIRouter
 from schemas import TaskId
+from fastapi import Depends
+from typing import Annotated
 from . import tasks
 from . import schemas
+from auth.auth import (
+    get_current_user,
+)
+from auth.models import (
+    User,
+)
 
 router = APIRouter()
 
@@ -50,35 +58,50 @@ async def get_task_result(task_id: str):
 
 
 @router.get("/get-sellers")
-async def get_sellers() -> schemas.GetSellersResponse:
+async def get_sellers(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> schemas.GetSellersResponse:
     """Get sellers in tienda"""
     task = tasks.get_sellers.delay()
     return task.get()
 
 
 @router.get("/get-seller/{seller_id}")
-async def get_seller(seller_id: int) -> schemas.SellerBase:
+async def get_seller(
+    seller_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> schemas.SellerBase:
     """Get seller by ID"""
     task = tasks.get_seller.delay(seller_id)
     return task.get()
 
 
 @router.post("/add-seller")
-async def add_seller(name: str) -> schemas.AddSellerResponse:
+async def add_seller(
+    name: str,
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> schemas.AddSellerResponse:
     """Add a new seller"""
     task = tasks.add_seller.delay(name)
     return task.get()
 
 
 @router.put("/update-seller/{seller_id}")
-async def update_seller(seller_id: int, name: str):
+async def update_seller(
+    seller_id: int,
+    name: str,
+    current_user: Annotated[User, Depends(get_current_user)],
+):
     """Update a seller"""
     task = tasks.update_seller.delay(seller_id, name)
     return task.get()
 
 
 @router.delete("/delete-seller/{seller_id}")
-async def delete_seller(seller_id: int):
+async def delete_seller(
+    seller_id: int,
+    current_user: Annotated[User, Depends(get_current_user)],
+):
     """Delete a seller"""
     task = tasks.delete_seller.delay(seller_id)
     return task.get()
